@@ -93,7 +93,7 @@ function initLogin() {
       saveSession(result.token, result.user);
 
       showToast("Login realizado com sucesso.");
-      window.location.href = "dashboard.html";
+      window.location.replace("dashboard.html");
     } catch (error) {
       const message = error.message || "Email ou senha inválidos.";
       errorEl.textContent = message;
