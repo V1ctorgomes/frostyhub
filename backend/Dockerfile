@@ -1,13 +1,17 @@
-FROM node:22-alpine
+FROM node:lts-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+ENV NODE_ENV=production
 
-RUN npm install --omit=dev
+COPY package.json ./
 
-COPY . .
+RUN npm install --omit=dev && npm cache clean --force
+
+COPY src ./src
 
 EXPOSE 3001
+
+USER node
 
 CMD ["npm", "start"]
