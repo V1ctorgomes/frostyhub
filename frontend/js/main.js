@@ -1,4 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("FrostyHub iniciado");
-  console.log("API:", CONFIG.API_URL);
+  const page = document.body.dataset.page;
+
+  if (page === "login") {
+    initLogin();
+  }
+
+  if (page === "dashboard") {
+    initDashboardAuth();
+    initCepField();
+    initCustomers();
+  }
 });

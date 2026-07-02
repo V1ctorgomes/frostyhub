@@ -1,0 +1,52 @@
+:root {
+  /* Primária */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-light: #dbeafe;
+
+  /* Secundária */
+  --color-secondary: #64748b;
+  --color-secondary-light: #f1f5f9;
+
+  /* Auxiliares */
+  --color-success: #16a34a;
+  --color-success-light: #dcfce7;
+  --color-error: #dc2626;
+  --color-error-light: #fee2e2;
+  --color-warning: #ca8a04;
+  --color-warning-light: #fef9c3;
+
+  /* Neutros */
+  --color-white: #ffffff;
+  --color-bg: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+
+  /* Tipografia */
+  --font-family: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Espaçamento */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  /* Bordas e sombras */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* Transições */
+  --transition: 0.2s ease;
+
+  /* Breakpoints (referência) */
+  --breakpoint-tablet: 768px;
+  --breakpoint-notebook: 992px;
+  --breakpoint-desktop: 1200px;
+}

@@ -104,4 +104,5 @@ Consulte `backend/.env.example` para as variáveis necessárias.
 - [x] PRD-001 — Arquitetura e configuração inicial
 - [x] PRD-002 — Modelagem do banco de dados
 - [x] PRD-003 — API REST e autenticação
-- [ ] PRD-004 — (próximas etapas)
+- [x] PRD-004 — Interface, layout e experiência do usuário
+- [ ] PRD-005 — (próximas etapas)
