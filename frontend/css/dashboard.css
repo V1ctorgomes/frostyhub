@@ -57,6 +57,13 @@
   flex-wrap: wrap;
 }
 
+.card__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
 .card__header .card__title {
   margin-bottom: 0;
 }

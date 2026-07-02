@@ -386,6 +386,10 @@
   color: var(--color-text-muted);
 }
 
+.data-table__error {
+  color: var(--color-error);
+}
+
 /* Card */
 .card {
   background: var(--color-white);

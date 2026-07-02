@@ -9,7 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!requireAuth()) return;
 
     initDashboardAuth();
-    initCepField();
     initCustomers();
+
+    try {
+      initCepField();
+    } catch {
+      showToast("Erro ao iniciar busca de CEP.", "warning");
+    }
   }
 });

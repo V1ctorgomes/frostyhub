@@ -4,22 +4,23 @@ let isLoadingCustomers = false;
 let isSubmitting = false;
 
 function getFormData() {
-  const email = document.getElementById("email").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const complement = document.getElementById("complement").value.trim();
+  const form = document.getElementById("customer-form");
+  const email = form.querySelector("#email").value.trim();
+  const phone = form.querySelector("#phone").value.trim();
+  const complement = form.querySelector("#complement").value.trim();
 
   return {
-    name: document.getElementById("name").value.trim(),
+    name: form.querySelector("#name").value.trim(),
     email: email || null,
     phone: phone || null,
-    cep: document.getElementById("cep").value.trim(),
-    street: document.getElementById("street").value.trim(),
-    number: document.getElementById("number").value.trim(),
+    cep: form.querySelector("#cep").value.trim(),
+    street: form.querySelector("#street").value.trim(),
+    number: form.querySelector("#number").value.trim(),
     complement: complement || null,
-    neighborhood: document.getElementById("neighborhood").value.trim(),
-    city: document.getElementById("city").value.trim(),
-    state: document.getElementById("state").value.trim(),
-    uf: document.getElementById("uf").value.trim().toUpperCase(),
+    neighborhood: form.querySelector("#neighborhood").value.trim(),
+    city: form.querySelector("#city").value.trim(),
+    state: form.querySelector("#state").value.trim(),
+    uf: form.querySelector("#uf").value.trim().toUpperCase(),
   };
 }
 
@@ -82,6 +83,15 @@ function setEditMode(customer) {
   document.getElementById("name").focus();
 }
 
+function renderTableError(message) {
+  const tbody = document.getElementById("customers-table-body");
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6" class="data-table__empty data-table__error">${escapeHtml(message)}</td>
+    </tr>
+  `;
+}
+
 function renderTable() {
   const tbody = document.getElementById("customers-table-body");
   tbody.innerHTML = "";
@@ -133,15 +143,25 @@ async function loadCustomers() {
   setButtonsDisabled(true, tableSection);
 
   try {
-    customers = await api.getCustomers();
+    if (!localStorage.getItem("token")) {
+      throw new Error("Sessão não encontrada. Faça login novamente.");
+    }
+
+    const data = await api.getCustomers();
+    customers = data;
     renderTable();
   } catch (error) {
-    if (error.message !== "Sessão expirada.") {
-      showToast(
-        sanitizeErrorMessage(error.message) || "Erro ao carregar clientes.",
-        "error"
-      );
+    customers = [];
+
+    if (error.message === "Sessão expirada.") {
+      renderTable();
+      return;
     }
+
+    const message =
+      sanitizeErrorMessage(error.message) || "Erro ao carregar clientes.";
+    renderTableError(`${message} Clique em recarregar para tentar novamente.`);
+    showToast(message, "error");
   } finally {
     isLoadingCustomers = false;
     hideLoading();
@@ -255,13 +275,17 @@ function initCustomers() {
   const form = document.getElementById("customer-form");
   const cancelBtn = document.getElementById("cancel-btn");
   const openModalBtn = document.getElementById("open-customer-modal-btn");
+  const reloadBtn = document.getElementById("reload-customers-btn");
   const phoneInput = document.getElementById("phone");
   const ufInput = document.getElementById("uf");
   const tableBody = document.getElementById("customers-table-body");
 
+  loadCustomers();
+
   initCustomerModal();
 
   openModalBtn?.addEventListener("click", openNewCustomerModal);
+  reloadBtn?.addEventListener("click", loadCustomers);
 
   form.querySelectorAll("input").forEach((input) => {
     input.addEventListener("input", () => {
@@ -337,5 +361,4 @@ function initCustomers() {
   });
 
   updateCustomerFormState();
-  loadCustomers();
 }
