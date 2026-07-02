@@ -289,6 +289,80 @@
       </div>
     </div>
 
+    <div id="view-customer-modal" class="modal-overlay" hidden>
+      <div
+        class="modal modal--view"
+        role="dialog"
+        aria-labelledby="view-customer-title"
+        aria-modal="true"
+      >
+        <div class="modal__header">
+          <h2 class="modal__title" id="view-customer-title">Detalhes do Cliente</h2>
+          <button
+            type="button"
+            id="close-view-customer-modal-btn"
+            class="btn btn--ghost btn--icon modal__close"
+            aria-label="Fechar"
+          >
+            ✕
+          </button>
+        </div>
+
+        <dl class="customer-details">
+          <div class="customer-details__item">
+            <dt>Nome</dt>
+            <dd id="view-name">—</dd>
+          </div>
+          <div class="customer-details__item">
+            <dt>E-mail</dt>
+            <dd id="view-email">—</dd>
+          </div>
+          <div class="customer-details__item">
+            <dt>Telefone</dt>
+            <dd id="view-phone">—</dd>
+          </div>
+          <div class="customer-details__item">
+            <dt>CEP</dt>
+            <dd id="view-cep">—</dd>
+          </div>
+          <div class="customer-details__item customer-details__item--full">
+            <dt>Logradouro</dt>
+            <dd id="view-street">—</dd>
+          </div>
+          <div class="customer-details__item">
+            <dt>Número</dt>
+            <dd id="view-number">—</dd>
+          </div>
+          <div class="customer-details__item">
+            <dt>Complemento</dt>
+            <dd id="view-complement">—</dd>
+          </div>
+          <div class="customer-details__item">
+            <dt>Bairro</dt>
+            <dd id="view-neighborhood">—</dd>
+          </div>
+          <div class="customer-details__item">
+            <dt>Cidade</dt>
+            <dd id="view-city">—</dd>
+          </div>
+          <div class="customer-details__item">
+            <dt>Estado</dt>
+            <dd id="view-state">—</dd>
+          </div>
+          <div class="customer-details__item">
+            <dt>UF</dt>
+            <dd id="view-uf">—</dd>
+          </div>
+        </dl>
+
+        <div class="modal__actions">
+          <button type="button" id="view-close-btn" class="btn btn--secondary">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="delete-modal" class="modal-overlay" hidden>
       <div
         class="modal"
@@ -317,6 +391,7 @@
 
     <script src="../js/config.js"></script>
     <script src="../js/validators.js"></script>
+    <script src="../js/icons.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/ui.js"></script>

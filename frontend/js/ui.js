@@ -157,6 +157,41 @@ function closeCustomerModal() {
   document.body.style.overflow = "";
 }
 
+function closeViewCustomerModal() {
+  const modal = document.getElementById("view-customer-modal");
+  if (modal) modal.hidden = true;
+  document.body.style.overflow = "";
+}
+
+function openViewCustomerModal() {
+  const modal = document.getElementById("view-customer-modal");
+  if (modal) modal.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function initViewCustomerModal() {
+  const modal = document.getElementById("view-customer-modal");
+  const closeBtn = document.getElementById("close-view-customer-modal-btn");
+  const closeFooterBtn = document.getElementById("view-close-btn");
+
+  if (!modal) return;
+
+  function close() {
+    closeViewCustomerModal();
+  }
+
+  closeBtn?.addEventListener("click", close);
+  closeFooterBtn?.addEventListener("click", close);
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) close();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !modal.hidden) close();
+  });
+}
+
 function initCustomerModal() {
   const modal = document.getElementById("customer-modal");
   const closeBtn = document.getElementById("close-customer-modal-btn");

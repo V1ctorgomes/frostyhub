@@ -24,12 +24,26 @@ function getFormData() {
   };
 }
 
-function updateCustomerFormState() {
+function setCustomerFormMode(mode) {
   const saveBtn = document.getElementById("save-btn");
   const updateBtn = document.getElementById("update-btn");
+  const isEdit = mode === "edit";
 
-  if (saveBtn) saveBtn.disabled = isSubmitting;
-  if (updateBtn) updateBtn.disabled = isSubmitting;
+  if (saveBtn) {
+    saveBtn.hidden = isEdit;
+    saveBtn.type = isEdit ? "button" : "submit";
+    saveBtn.disabled = isSubmitting;
+  }
+
+  if (updateBtn) {
+    updateBtn.hidden = !isEdit;
+    updateBtn.type = isEdit ? "submit" : "button";
+    updateBtn.disabled = isSubmitting;
+  }
+}
+
+function updateCustomerFormState() {
+  setCustomerFormMode(editingId ? "edit" : "create");
 }
 
 function resetForm() {
@@ -40,8 +54,7 @@ function resetForm() {
 
   clearFormErrors(form);
   document.getElementById("form-title").textContent = "Cadastrar Cliente";
-  document.getElementById("save-btn").hidden = false;
-  document.getElementById("update-btn").hidden = true;
+  setCustomerFormMode("create");
 
   updateCustomerFormState();
 }
@@ -68,12 +81,29 @@ function setEditMode(customer) {
   document.getElementById("uf").value = customer.uf;
 
   document.getElementById("form-title").textContent = "Editar Cliente";
-  document.getElementById("save-btn").hidden = true;
-  document.getElementById("update-btn").hidden = false;
+  setCustomerFormMode("edit");
 
   updateCustomerFormState();
   openCustomerModal();
   document.getElementById("name").focus();
+}
+
+function showViewCustomer(customer) {
+  document.getElementById("view-name").textContent = customer.name || "—";
+  document.getElementById("view-email").textContent = customer.email || "—";
+  document.getElementById("view-phone").textContent = customer.phone || "—";
+  document.getElementById("view-cep").textContent = customer.cep || "—";
+  document.getElementById("view-street").textContent = customer.street || "—";
+  document.getElementById("view-number").textContent = customer.number || "—";
+  document.getElementById("view-complement").textContent =
+    customer.complement || "—";
+  document.getElementById("view-neighborhood").textContent =
+    customer.neighborhood || "—";
+  document.getElementById("view-city").textContent = customer.city || "—";
+  document.getElementById("view-state").textContent = customer.state || "—";
+  document.getElementById("view-uf").textContent = customer.uf || "—";
+
+  openViewCustomerModal();
 }
 
 function renderTableError(message) {
@@ -108,11 +138,14 @@ function renderTable() {
       <td>${escapeHtml(customer.state)}</td>
       <td>
         <div class="data-table__actions">
-          <button type="button" class="btn btn--ghost btn--sm" data-action="edit" data-id="${customer.id}" aria-label="Editar ${escapeHtml(customer.name)}">
-            Editar
+          <button type="button" class="btn btn--ghost btn--action-icon" data-action="view" data-id="${customer.id}" aria-label="Ver ${escapeHtml(customer.name)}" title="Ver cliente">
+            ${getIcon("view")}
           </button>
-          <button type="button" class="btn btn--ghost btn--sm" data-action="delete" data-id="${customer.id}" aria-label="Excluir ${escapeHtml(customer.name)}">
-            Excluir
+          <button type="button" class="btn btn--ghost btn--action-icon" data-action="edit" data-id="${customer.id}" aria-label="Editar ${escapeHtml(customer.name)}" title="Editar">
+            ${getIcon("edit")}
+          </button>
+          <button type="button" class="btn btn--ghost btn--action-icon btn--action-icon--danger" data-action="delete" data-id="${customer.id}" aria-label="Excluir ${escapeHtml(customer.name)}" title="Excluir">
+            ${getIcon("delete")}
           </button>
         </div>
       </td>
@@ -267,6 +300,7 @@ function initCustomers() {
   loadCustomers();
 
   initCustomerModal();
+  initViewCustomerModal();
 
   openModalBtn?.addEventListener("click", openNewCustomerModal);
 
@@ -329,6 +363,10 @@ function initCustomers() {
     const customer = customers.find((c) => c.id === id);
 
     if (!customer) return;
+
+    if (action === "view") {
+      showViewCustomer(customer);
+    }
 
     if (action === "edit") {
       setEditMode(customer);
