@@ -29,210 +29,232 @@
     </header>
 
     <main class="dashboard-main">
-      <div class="dashboard-grid">
-        <section class="dashboard-section dashboard-section--form">
-          <div class="card">
-            <h2 class="card__title" id="form-title">Cadastrar Cliente</h2>
-
-            <form id="customer-form" class="customer-form" novalidate>
-              <input type="hidden" id="customer-id" name="id" />
-
-              <div class="form-grid">
-                <div class="form-group form-group--full">
-                  <label for="name">Nome</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="Nome completo"
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="email">E-mail</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="email@exemplo.com"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="phone">Telefone</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    placeholder="(00) 00000-0000"
-                  />
-                </div>
-
-                <div class="form-group form-group--full">
-                  <label for="cep">CEP</label>
-                  <div class="cep-field">
-                    <input
-                      type="text"
-                      id="cep"
-                      name="cep"
-                      placeholder="00000-000"
-                      inputmode="numeric"
-                      maxlength="9"
-                      required
-                    />
-                    <button
-                      type="button"
-                      id="cep-search-btn"
-                      class="btn btn--secondary btn--sm"
-                    >
-                      Buscar CEP
-                    </button>
-                    <span
-                      id="cep-loader"
-                      class="cep-loader"
-                      hidden
-                      aria-label="Buscando CEP"
-                    ></span>
-                  </div>
-                </div>
-
-                <div class="form-group form-group--full">
-                  <label for="street">Logradouro / Rua</label>
-                  <input
-                    type="text"
-                    id="street"
-                    name="street"
-                    placeholder="Rua, Avenida..."
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="number">Número</label>
-                  <input
-                    type="text"
-                    id="number"
-                    name="number"
-                    placeholder="123"
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="complement">Complemento</label>
-                  <input
-                    type="text"
-                    id="complement"
-                    name="complement"
-                    placeholder="Apto, Bloco..."
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="neighborhood">Bairro</label>
-                  <input
-                    type="text"
-                    id="neighborhood"
-                    name="neighborhood"
-                    placeholder="Bairro"
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="city">Cidade</label>
-                  <input
-                    type="text"
-                    id="city"
-                    name="city"
-                    placeholder="Cidade"
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="state">Estado</label>
-                  <input
-                    type="text"
-                    id="state"
-                    name="state"
-                    placeholder="Estado"
-                    required
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="uf">UF</label>
-                  <input
-                    type="text"
-                    id="uf"
-                    name="uf"
-                    placeholder="SP"
-                    maxlength="2"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" id="save-btn" class="btn btn--primary">
-                  Salvar
-                </button>
-                <button
-                  type="submit"
-                  id="update-btn"
-                  class="btn btn--primary"
-                  hidden
-                >
-                  Atualizar
-                </button>
-                <button
-                  type="button"
-                  id="cancel-btn"
-                  class="btn btn--secondary"
-                  hidden
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        </section>
-
-        <section class="dashboard-section dashboard-section--table">
-          <div class="card">
+      <section class="dashboard-section">
+        <div class="card">
+          <div class="card__header">
             <h2 class="card__title">Clientes Cadastrados</h2>
-
-            <div class="table-wrapper">
-              <table class="data-table" aria-label="Lista de clientes">
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Telefone</th>
-                    <th>Cidade</th>
-                    <th>Estado</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="customers-table-body">
-                  <tr>
-                    <td colspan="6" class="data-table__empty">
-                      Nenhum cliente cadastrado.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <button
+              type="button"
+              id="open-customer-modal-btn"
+              class="btn btn--primary"
+            >
+              + Cadastrar Cliente
+            </button>
           </div>
-        </section>
-      </div>
+
+          <div class="table-wrapper">
+            <table class="data-table" aria-label="Lista de clientes">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Telefone</th>
+                  <th>Cidade</th>
+                  <th>Estado</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="customers-table-body">
+                <tr>
+                  <td colspan="6" class="data-table__empty">
+                    Nenhum cliente cadastrado.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </main>
 
+    <div id="customer-modal" class="modal-overlay" hidden>
+      <div
+        class="modal modal--form"
+        role="dialog"
+        aria-labelledby="form-title"
+        aria-modal="true"
+      >
+        <div class="modal__header">
+          <h2 class="modal__title" id="form-title">Cadastrar Cliente</h2>
+          <button
+            type="button"
+            id="close-customer-modal-btn"
+            class="btn btn--ghost btn--icon modal__close"
+            aria-label="Fechar"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form id="customer-form" class="customer-form" novalidate>
+          <input type="hidden" id="customer-id" name="id" />
+
+          <div class="form-grid">
+            <div class="form-group form-group--full">
+              <label for="name">Nome</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Nome completo"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">E-mail</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="email@exemplo.com"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Telefone</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="(00) 00000-0000"
+              />
+            </div>
+
+            <div class="form-group form-group--full">
+              <label for="cep">CEP</label>
+              <div class="cep-field">
+                <input
+                  type="text"
+                  id="cep"
+                  name="cep"
+                  placeholder="00000-000"
+                  inputmode="numeric"
+                  maxlength="9"
+                  required
+                />
+                <button
+                  type="button"
+                  id="cep-search-btn"
+                  class="btn btn--secondary btn--sm"
+                >
+                  Buscar CEP
+                </button>
+                <span
+                  id="cep-loader"
+                  class="cep-loader"
+                  hidden
+                  aria-label="Buscando CEP"
+                ></span>
+              </div>
+            </div>
+
+            <div class="form-group form-group--full">
+              <label for="street">Logradouro / Rua</label>
+              <input
+                type="text"
+                id="street"
+                name="street"
+                placeholder="Rua, Avenida..."
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="number">Número</label>
+              <input
+                type="text"
+                id="number"
+                name="number"
+                placeholder="123"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="complement">Complemento</label>
+              <input
+                type="text"
+                id="complement"
+                name="complement"
+                placeholder="Apto, Bloco..."
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="neighborhood">Bairro</label>
+              <input
+                type="text"
+                id="neighborhood"
+                name="neighborhood"
+                placeholder="Bairro"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="city">Cidade</label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                placeholder="Cidade"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="state">Estado</label>
+              <input
+                type="text"
+                id="state"
+                name="state"
+                placeholder="Estado"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="uf">UF</label>
+              <input
+                type="text"
+                id="uf"
+                name="uf"
+                placeholder="SP"
+                maxlength="2"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="save-btn" class="btn btn--primary">
+              Salvar
+            </button>
+            <button
+              type="submit"
+              id="update-btn"
+              class="btn btn--primary"
+              hidden
+            >
+              Atualizar
+            </button>
+            <button type="button" id="cancel-btn" class="btn btn--secondary">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <div id="delete-modal" class="modal-overlay" hidden>
-      <div class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
-        <h3 id="modal-title" class="modal__title">Confirmar exclusão</h3>
+      <div
+        class="modal"
+        role="dialog"
+        aria-labelledby="delete-modal-title"
+        aria-modal="true"
+      >
+        <h3 id="delete-modal-title" class="modal__title">Confirmar exclusão</h3>
         <p class="modal__text">Deseja realmente excluir este cliente?</p>
         <div class="modal__actions">
           <button type="button" id="modal-cancel" class="btn btn--secondary">
@@ -252,6 +274,7 @@
     <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
     <script src="../js/config.js"></script>
+    <script src="../js/validators.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/ui.js"></script>

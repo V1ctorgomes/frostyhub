@@ -4,12 +4,10 @@ const STORAGE_KEYS = {
   userEmail: "userEmail",
 };
 
+let isLoggingIn = false;
+
 function isAuthenticated() {
   return !!localStorage.getItem(STORAGE_KEYS.token);
-}
-
-function getToken() {
-  return localStorage.getItem(STORAGE_KEYS.token);
 }
 
 function getUser() {
@@ -35,18 +33,18 @@ function clearSession() {
 
 function logout() {
   clearSession();
-  window.location.href = "login.html";
+  window.location.replace("login.html");
 }
 
 function handleSessionExpired() {
   clearSession();
   sessionStorage.setItem("sessionExpired", "1");
-  window.location.href = "login.html";
+  window.location.replace("login.html");
 }
 
 function requireAuth() {
   if (!isAuthenticated()) {
-    window.location.href = "login.html";
+    window.location.replace("login.html");
     return false;
   }
   return true;
@@ -54,7 +52,21 @@ function requireAuth() {
 
 function redirectIfAuthenticated() {
   if (isAuthenticated()) {
-    window.location.href = "dashboard.html";
+    window.location.replace("dashboard.html");
+  }
+}
+
+function updateLoginFormState(form) {
+  const email = form.email.value.trim();
+  const password = form.password.value;
+  const errors = getLoginValidationErrors(email, password);
+  const loginBtn = document.getElementById("login-btn");
+
+  clearFormErrors(form);
+  applyFormErrors(errors);
+
+  if (loginBtn) {
+    loginBtn.disabled = Object.keys(errors).length > 0 || isLoggingIn;
   }
 }
 
@@ -70,40 +82,53 @@ function initLogin() {
   const errorEl = document.getElementById("login-error");
   const loginBtn = document.getElementById("login-btn");
 
+  form.email.addEventListener("input", () => updateLoginFormState(form));
+  form.password.addEventListener("input", () => updateLoginFormState(form));
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (isLoggingIn) return;
 
     const email = form.email.value.trim();
     const password = form.password.value;
+    const errors = getLoginValidationErrors(email, password);
 
     errorEl.hidden = true;
+    clearFormErrors(form);
 
-    if (!email || !password) {
-      errorEl.textContent = "Email e senha são obrigatórios.";
+    if (Object.keys(errors).length > 0) {
+      applyFormErrors(errors);
+      errorEl.textContent = "Preencha os campos corretamente.";
       errorEl.hidden = false;
       return;
     }
 
+    isLoggingIn = true;
     showLoading();
-    loginBtn.disabled = true;
+    setButtonLoading(loginBtn, true);
 
     try {
       const result = await api.login(email, password);
 
       saveSession(result.token, result.user);
-
       showToast("Login realizado com sucesso.");
       window.location.replace("dashboard.html");
     } catch (error) {
-      const message = error.message || "Email ou senha inválidos.";
+      const message = sanitizeErrorMessage(
+        error.message || "Email ou senha inválidos."
+      );
       errorEl.textContent = message;
       errorEl.hidden = false;
       showToast("Login inválido.", "error");
     } finally {
+      isLoggingIn = false;
       hideLoading();
-      loginBtn.disabled = false;
+      setButtonLoading(loginBtn, false);
+      updateLoginFormState(form);
     }
   });
+
+  updateLoginFormState(form);
 }
 
 function initDashboardAuth() {

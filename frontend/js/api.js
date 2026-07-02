@@ -1,3 +1,5 @@
+const pendingRequests = new Map();
+
 function getAuthHeaders() {
   const token = localStorage.getItem("token");
   const headers = { "Content-Type": "application/json" };
@@ -10,44 +12,57 @@ function getAuthHeaders() {
 }
 
 async function parseResponse(response) {
-  let data;
-
   try {
-    data = await response.json();
+    return await response.json();
   } catch {
-    data = { message: "Falha de comunicação com o servidor." };
+    return { message: "Falha de comunicação com o servidor." };
   }
-
-  return data;
 }
 
 async function request(endpoint, options = {}) {
-  let response;
+  const method = options.method || "GET";
+  const requestKey = `${method}:${endpoint}`;
+
+  if (pendingRequests.has(requestKey)) {
+    return pendingRequests.get(requestKey);
+  }
+
+  const requestPromise = (async () => {
+    let response;
+
+    try {
+      response = await fetch(`${CONFIG.API_URL}${endpoint}`, {
+        ...options,
+        headers: {
+          ...getAuthHeaders(),
+          ...options.headers,
+        },
+      });
+    } catch {
+      throw new Error("Falha de comunicação com o servidor.");
+    }
+
+    const data = await parseResponse(response);
+
+    if (response.status === 401 && endpoint !== "/auth/login") {
+      handleSessionExpired();
+      throw new Error("Sessão expirada.");
+    }
+
+    if (!response.ok) {
+      throw new Error(sanitizeErrorMessage(data.message));
+    }
+
+    return data;
+  })();
+
+  pendingRequests.set(requestKey, requestPromise);
 
   try {
-    response = await fetch(`${CONFIG.API_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        ...getAuthHeaders(),
-        ...options.headers,
-      },
-    });
-  } catch {
-    throw new Error("Falha de comunicação com o servidor.");
+    return await requestPromise;
+  } finally {
+    pendingRequests.delete(requestKey);
   }
-
-  const data = await parseResponse(response);
-
-  if (response.status === 401 && endpoint !== "/auth/login") {
-    handleSessionExpired();
-    throw new Error("Sessão expirada.");
-  }
-
-  if (!response.ok) {
-    throw new Error(data.message || "Erro na requisição.");
-  }
-
-  return data;
 }
 
 const api = {

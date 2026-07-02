@@ -1,5 +1,7 @@
 let customers = [];
 let editingId = null;
+let isLoadingCustomers = false;
+let isSubmitting = false;
 
 function getFormData() {
   const email = document.getElementById("email").value.trim();
@@ -21,34 +23,39 @@ function getFormData() {
   };
 }
 
-function validateCustomer(data) {
-  const required = [
-    "name",
-    "cep",
-    "street",
-    "number",
-    "neighborhood",
-    "city",
-    "state",
-    "uf",
-  ];
+function updateCustomerFormState() {
+  const form = document.getElementById("customer-form");
+  const saveBtn = document.getElementById("save-btn");
+  const updateBtn = document.getElementById("update-btn");
+  const data = getFormData();
+  const errors = getCustomerValidationErrors(data);
+  const isValid = Object.keys(errors).length === 0;
 
-  const missing = required.filter((field) => !data[field]);
+  clearFormErrors(form);
+  applyFormErrors(errors);
 
-  if (missing.length > 0) {
-    throw new Error("Preencha todos os campos obrigatórios.");
-  }
+  if (saveBtn) saveBtn.disabled = !isValid || isSubmitting;
+  if (updateBtn) updateBtn.disabled = !isValid || isSubmitting;
 }
 
 function resetForm() {
-  document.getElementById("customer-form").reset();
+  const form = document.getElementById("customer-form");
+  form.reset();
   document.getElementById("customer-id").value = "";
   editingId = null;
 
+  clearFormErrors(form);
   document.getElementById("form-title").textContent = "Cadastrar Cliente";
   document.getElementById("save-btn").hidden = false;
   document.getElementById("update-btn").hidden = true;
-  document.getElementById("cancel-btn").hidden = true;
+
+  updateCustomerFormState();
+}
+
+function openNewCustomerModal() {
+  resetForm();
+  openCustomerModal();
+  document.getElementById("name").focus();
 }
 
 function setEditMode(customer) {
@@ -69,8 +76,9 @@ function setEditMode(customer) {
   document.getElementById("form-title").textContent = "Editar Cliente";
   document.getElementById("save-btn").hidden = true;
   document.getElementById("update-btn").hidden = false;
-  document.getElementById("cancel-btn").hidden = false;
 
+  updateCustomerFormState();
+  openCustomerModal();
   document.getElementById("name").focus();
 }
 
@@ -117,47 +125,70 @@ function escapeHtml(text) {
 }
 
 async function loadCustomers() {
+  if (isLoadingCustomers) return;
+
+  isLoadingCustomers = true;
+  const tableSection = document.querySelector(".dashboard-section");
   showLoading();
-  setButtonsDisabled(true);
+  setButtonsDisabled(true, tableSection);
 
   try {
     customers = await api.getCustomers();
     renderTable();
   } catch (error) {
     if (error.message !== "Sessão expirada.") {
-      showToast(error.message || "Erro ao carregar clientes.", "error");
+      showToast(
+        sanitizeErrorMessage(error.message) || "Erro ao carregar clientes.",
+        "error"
+      );
     }
   } finally {
+    isLoadingCustomers = false;
     hideLoading();
-    setButtonsDisabled(false);
+    setButtonsDisabled(false, tableSection);
   }
 }
 
 async function handleSave(data) {
+  if (isSubmitting) return;
+
+  const saveBtn = document.getElementById("save-btn");
+  isSubmitting = true;
   showLoading();
-  setButtonsDisabled(true);
+  setButtonLoading(saveBtn, true);
+  updateCustomerFormState();
 
   try {
     const customer = await api.createCustomer(data);
     customers.push(customer);
     renderTable();
     resetForm();
-    document.getElementById("name").focus();
+    closeCustomerModal();
     showToast("Cliente cadastrado com sucesso.");
   } catch (error) {
     if (error.message !== "Sessão expirada.") {
-      showToast(error.message || "Erro ao salvar cliente.", "error");
+      showToast(
+        sanitizeErrorMessage(error.message) || "Erro ao salvar cliente.",
+        "error"
+      );
     }
     throw error;
   } finally {
+    isSubmitting = false;
     hideLoading();
-    setButtonsDisabled(false);
+    setButtonLoading(saveBtn, false);
+    updateCustomerFormState();
   }
 }
 
 async function handleUpdate(id, data) {
+  if (isSubmitting) return;
+
+  const updateBtn = document.getElementById("update-btn");
+  isSubmitting = true;
   showLoading();
-  setButtonsDisabled(true);
+  setButtonLoading(updateBtn, true);
+  updateCustomerFormState();
 
   try {
     const customer = await api.updateCustomer(id, data);
@@ -169,15 +200,21 @@ async function handleUpdate(id, data) {
 
     renderTable();
     resetForm();
+    closeCustomerModal();
     showToast("Cliente atualizado com sucesso.");
   } catch (error) {
     if (error.message !== "Sessão expirada.") {
-      showToast(error.message || "Erro ao atualizar cliente.", "error");
+      showToast(
+        sanitizeErrorMessage(error.message) || "Erro ao atualizar cliente.",
+        "error"
+      );
     }
     throw error;
   } finally {
+    isSubmitting = false;
     hideLoading();
-    setButtonsDisabled(false);
+    setButtonLoading(updateBtn, false);
+    updateCustomerFormState();
   }
 }
 
@@ -185,34 +222,53 @@ async function handleDelete(id) {
   const confirmed = await showDeleteModal();
   if (!confirmed) return;
 
+  const tableSection = document.querySelector(".dashboard-section");
   showLoading();
-  setButtonsDisabled(true);
+  setButtonsDisabled(true, tableSection);
 
   try {
     await api.deleteCustomer(id);
     customers = customers.filter((c) => c.id !== id);
     renderTable();
 
-    if (editingId === id) resetForm();
+    if (editingId === id) {
+      resetForm();
+      closeCustomerModal();
+    }
 
     showToast("Cliente removido com sucesso.");
   } catch (error) {
     if (error.message !== "Sessão expirada.") {
-      showToast(error.message || "Erro ao excluir cliente.", "error");
+      showToast(
+        sanitizeErrorMessage(error.message) || "Erro ao excluir cliente.",
+        "error"
+      );
     }
     throw error;
   } finally {
     hideLoading();
-    setButtonsDisabled(false);
+    setButtonsDisabled(false, tableSection);
   }
 }
 
 function initCustomers() {
   const form = document.getElementById("customer-form");
   const cancelBtn = document.getElementById("cancel-btn");
+  const openModalBtn = document.getElementById("open-customer-modal-btn");
   const phoneInput = document.getElementById("phone");
   const ufInput = document.getElementById("uf");
   const tableBody = document.getElementById("customers-table-body");
+
+  initCustomerModal();
+
+  openModalBtn?.addEventListener("click", openNewCustomerModal);
+
+  form.querySelectorAll("input").forEach((input) => {
+    input.addEventListener("input", () => {
+      clearFieldError(input.id);
+      updateCustomerFormState();
+    });
+  });
 
   if (phoneInput) {
     phoneInput.addEventListener("input", () => {
@@ -228,11 +284,20 @@ function initCustomers() {
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (isSubmitting) return;
+
+    const data = getFormData();
+    const errors = getCustomerValidationErrors(data);
+
+    clearFormErrors(form);
+    applyFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      showToast("Preencha os campos obrigatórios corretamente.", "warning");
+      return;
+    }
 
     try {
-      const data = getFormData();
-      validateCustomer(data);
-
       if (editingId) {
         await handleUpdate(editingId, data);
       } else {
@@ -243,11 +308,14 @@ function initCustomers() {
     }
   });
 
-  cancelBtn.addEventListener("click", resetForm);
+  cancelBtn.addEventListener("click", () => {
+    resetForm();
+    closeCustomerModal();
+  });
 
   tableBody.addEventListener("click", async (event) => {
     const button = event.target.closest("button[data-action]");
-    if (!button) return;
+    if (!button || isLoadingCustomers) return;
 
     const id = Number(button.dataset.id);
     const action = button.dataset.action;
@@ -268,5 +336,6 @@ function initCustomers() {
     }
   });
 
+  updateCustomerFormState();
   loadCustomers();
 }

@@ -160,8 +160,9 @@ async function searchCep() {
   try {
     const address = await fetchAddressByCep(cepInput.value);
 
-    fillAddressFields(address);
-    showToast("Endereço preenchido automaticamente.");
+  fillAddressFields(address);
+  updateCustomerFormState?.();
+  showToast("Endereço preenchido automaticamente.");
   } catch (error) {
     lastSearchedCep = "";
     showToast(error.message, "error");
