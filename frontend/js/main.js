@@ -9,7 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!requireAuth()) return;
 
     initDashboardAuth();
-    initCustomers();
+
+    try {
+      initCustomers();
+    } catch (error) {
+      console.error("Erro ao iniciar clientes:", error);
+      showToast("Erro ao carregar a página de clientes.", "error");
+    }
 
     try {
       initCepField();

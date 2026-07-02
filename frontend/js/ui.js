@@ -38,10 +38,19 @@ function hideLoading() {
   }
 }
 
-function setButtonsDisabled(disabled, container = document) {
+function setButtonsDisabled(disabled, container = document, exceptIds = []) {
   container.querySelectorAll("button, input[type='submit']").forEach((btn) => {
+    if (exceptIds.includes(btn.id)) return;
     btn.disabled = disabled;
   });
+}
+
+function setTableActionButtonsDisabled(disabled) {
+  document
+    .querySelectorAll("#customers-table-body button[data-action]")
+    .forEach((btn) => {
+      btn.disabled = disabled;
+    });
 }
 
 function setButtonLoading(button, isLoading) {
@@ -142,79 +151,6 @@ function showDeleteModal() {
     confirmBtn.addEventListener("click", onConfirm);
     modal.addEventListener("click", onOverlayClick);
     document.addEventListener("keydown", onEscape);
-  });
-}
-
-function openCustomerModal() {
-  const modal = document.getElementById("customer-modal");
-  if (modal) modal.hidden = false;
-  document.body.style.overflow = "hidden";
-}
-
-function closeCustomerModal() {
-  const modal = document.getElementById("customer-modal");
-  if (modal) modal.hidden = true;
-  document.body.style.overflow = "";
-}
-
-function closeViewCustomerModal() {
-  const modal = document.getElementById("view-customer-modal");
-  if (modal) modal.hidden = true;
-  document.body.style.overflow = "";
-}
-
-function openViewCustomerModal() {
-  const modal = document.getElementById("view-customer-modal");
-  if (modal) modal.hidden = false;
-  document.body.style.overflow = "hidden";
-}
-
-function initViewCustomerModal() {
-  const modal = document.getElementById("view-customer-modal");
-  const closeBtn = document.getElementById("close-view-customer-modal-btn");
-  const closeFooterBtn = document.getElementById("view-close-btn");
-
-  if (!modal) return;
-
-  function close() {
-    closeViewCustomerModal();
-  }
-
-  closeBtn?.addEventListener("click", close);
-  closeFooterBtn?.addEventListener("click", close);
-
-  modal.addEventListener("click", (event) => {
-    if (event.target === modal) close();
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !modal.hidden) close();
-  });
-}
-
-function initCustomerModal() {
-  const modal = document.getElementById("customer-modal");
-  const closeBtn = document.getElementById("close-customer-modal-btn");
-
-  if (!modal) return;
-
-  closeBtn?.addEventListener("click", () => {
-    closeCustomerModal();
-    resetForm();
-  });
-
-  modal.addEventListener("click", (event) => {
-    if (event.target === modal) {
-      closeCustomerModal();
-      resetForm();
-    }
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !modal.hidden) {
-      closeCustomerModal();
-      resetForm();
-    }
   });
 }
 
