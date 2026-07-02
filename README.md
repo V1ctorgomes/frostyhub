@@ -54,18 +54,54 @@ docker run -d \
   --name frostyhub-db \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=frosthub_db \
+  -e POSTGRES_DB=frostydb \
   -p 5432:5432 \
   -v $(pwd)/database/init.sql:/docker-entrypoint-initdb.d/init.sql \
   postgres:17-alpine
 ```
 
+Após criar as tabelas, execute o seed para criar o usuário de teste:
+
+```bash
+psql -U postgres -d frostydb -f database/seed.sql
+```
+
+Credenciais de teste: `admin@frostyhub.com` / `admin123`
+
+## API REST
+
+### Autenticação
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/api/auth/login` | Login (retorna JWT) |
+
+### Clientes (requer token JWT)
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/api/customers` | Listar clientes |
+| GET | `/api/customers/:id` | Buscar por ID |
+| POST | `/api/customers` | Cadastrar |
+| PUT | `/api/customers/:id` | Atualizar |
+| DELETE | `/api/customers/:id` | Excluir |
+
+Envie o token no header: `Authorization: Bearer <token>`
+
 ## Variáveis de Ambiente
 
 Consulte `backend/.env.example` para as variáveis necessárias.
+
+| Variável | Descrição |
+|----------|-----------|
+| `PORT` | Porta do servidor (3001) |
+| `DATABASE_URL` | Conexão PostgreSQL |
+| `FRONTEND_URL` | URL do frontend (CORS) |
+| `JWT_SECRET` | Chave secreta para tokens JWT |
 
 ## Status
 
 - [x] PRD-001 — Arquitetura e configuração inicial
 - [x] PRD-002 — Modelagem do banco de dados
-- [ ] PRD-003 — (próximas etapas)
+- [x] PRD-003 — API REST e autenticação
+- [ ] PRD-004 — (próximas etapas)
