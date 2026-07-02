@@ -140,7 +140,7 @@ function fillAddressFields(address) {
 
 async function searchCep() {
   const cepInput = document.getElementById("cep");
-  if (!cepInput || cepSearchInProgress) return;
+  if (!cepInput) return;
 
   const cleaned = cleanCep(cepInput.value);
 
@@ -151,11 +151,11 @@ async function searchCep() {
     return;
   }
 
-  if (lastSearchedCep === cleaned) return;
+  if (cepSearchInProgress || lastSearchedCep === cleaned) return;
 
-  setCepLoading(true);
   cepSearchInProgress = true;
   lastSearchedCep = cleaned;
+  setCepLoading(true);
 
   try {
     const address = await fetchAddressByCep(cepInput.value);
@@ -177,9 +177,15 @@ function initCepField() {
 
   if (!cepInput) return;
 
+  let isFormattingCep = false;
+
   cepInput.addEventListener("input", () => {
+    if (isFormattingCep) return;
+
+    isFormattingCep = true;
     const digits = cleanCep(cepInput.value).slice(0, 8);
     cepInput.value = formatCep(digits);
+    isFormattingCep = false;
 
     if (digits.length < 8) {
       lastSearchedCep = "";
@@ -190,16 +196,10 @@ function initCepField() {
     }
   });
 
-  cepInput.addEventListener("blur", (event) => {
-    if (searchBtn && event.relatedTarget === searchBtn) return;
-
-    const cleaned = cleanCep(cepInput.value);
-    if (cleaned.length === 8) {
-      searchCep();
-    }
-  });
-
   if (searchBtn) {
-    searchBtn.addEventListener("click", searchCep);
+    searchBtn.addEventListener("click", () => {
+      lastSearchedCep = "";
+      searchCep();
+    });
   }
 }
