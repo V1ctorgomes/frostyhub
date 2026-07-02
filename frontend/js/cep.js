@@ -1,76 +1,205 @@
 const VIA_CEP_URL = "https://viacep.com.br/ws";
+const CEP_REGEX = /^[0-9]{8}$/;
+
+const UF_NAMES = {
+  AC: "Acre",
+  AL: "Alagoas",
+  AP: "Amapá",
+  AM: "Amazonas",
+  BA: "Bahia",
+  CE: "Ceará",
+  DF: "Distrito Federal",
+  ES: "Espírito Santo",
+  GO: "Goiás",
+  MA: "Maranhão",
+  MT: "Mato Grosso",
+  MS: "Mato Grosso do Sul",
+  MG: "Minas Gerais",
+  PA: "Pará",
+  PB: "Paraíba",
+  PR: "Paraná",
+  PE: "Pernambuco",
+  PI: "Piauí",
+  RJ: "Rio de Janeiro",
+  RN: "Rio Grande do Norte",
+  RS: "Rio Grande do Sul",
+  RO: "Rondônia",
+  RR: "Roraima",
+  SC: "Santa Catarina",
+  SP: "São Paulo",
+  SE: "Sergipe",
+  TO: "Tocantins",
+};
+
+const FIELD_MAP = {
+  street: "street",
+  neighborhood: "neighborhood",
+  city: "city",
+  state: "state",
+  uf: "uf",
+};
+
+let cepSearchInProgress = false;
+let lastSearchedCep = "";
 
 function cleanCep(cep) {
   return cep.replace(/\D/g, "");
 }
 
+function isValidCepFormat(cep) {
+  return CEP_REGEX.test(cleanCep(cep));
+}
+
+function sanitize(value) {
+  return String(value || "").trim();
+}
+
+function mapViaCepResponse(data) {
+  const uf = sanitize(data.uf).toUpperCase();
+
+  return {
+    street: sanitize(data.logradouro),
+    neighborhood: sanitize(data.bairro),
+    city: sanitize(data.localidade),
+    state: sanitize(data.estado) || UF_NAMES[uf] || uf,
+    uf,
+  };
+}
+
 async function fetchAddressByCep(cep) {
   const cleaned = cleanCep(cep);
 
-  if (cleaned.length !== 8) {
-    return null;
+  if (!isValidCepFormat(cleaned)) {
+    throw new Error("CEP inválido. Digite 8 números.");
   }
 
-  const response = await fetch(`${VIA_CEP_URL}/${cleaned}/json/`);
+  let response;
+
+  try {
+    response = await fetch(`${VIA_CEP_URL}/${cleaned}/json/`);
+  } catch {
+    throw new Error("Erro ao buscar CEP. Tente novamente.");
+  }
 
   if (!response.ok) {
-    throw new Error("Erro ao consultar CEP.");
+    throw new Error("Erro ao buscar CEP. Tente novamente.");
   }
 
-  const data = await response.json();
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("Erro ao buscar CEP. Tente novamente.");
+  }
 
   if (data.erro) {
-    throw new Error("CEP inválido.");
+    throw new Error("CEP não encontrado.");
   }
 
-  return {
-    street: data.logradouro || "",
-    neighborhood: data.bairro || "",
-    city: data.localidade || "",
-    state: data.estado || "",
-    uf: data.uf || "",
-  };
+  return mapViaCepResponse(data);
+}
+
+function setCepLoading(isLoading) {
+  const loader = document.getElementById("cep-loader");
+  const searchBtn = document.getElementById("cep-search-btn");
+  const cepInput = document.getElementById("cep");
+
+  if (loader) loader.hidden = !isLoading;
+  if (searchBtn) searchBtn.disabled = isLoading;
+  if (cepInput) cepInput.disabled = isLoading;
+}
+
+function setFieldValue(fieldId, value) {
+  const field = document.getElementById(fieldId);
+  if (!field) return;
+
+  field.value = value;
+  field.dispatchEvent(new Event("input", { bubbles: true }));
+  field.classList.add("field--autofilled");
+
+  field.addEventListener(
+    "input",
+    () => field.classList.remove("field--autofilled"),
+    { once: true }
+  );
+}
+
+function fillAddressFields(address) {
+  setFieldValue(FIELD_MAP.street, address.street);
+  setFieldValue(FIELD_MAP.neighborhood, address.neighborhood);
+  setFieldValue(FIELD_MAP.city, address.city);
+  setFieldValue(FIELD_MAP.state, address.state);
+  setFieldValue(FIELD_MAP.uf, address.uf);
+
+  const numberField = document.getElementById("number");
+  if (numberField && !numberField.value) {
+    numberField.focus();
+  }
+}
+
+async function searchCep() {
+  const cepInput = document.getElementById("cep");
+  if (!cepInput || cepSearchInProgress) return;
+
+  const cleaned = cleanCep(cepInput.value);
+
+  if (cleaned.length === 0) return;
+
+  if (!isValidCepFormat(cleaned)) {
+    showToast("CEP inválido. Digite 8 números.", "warning");
+    return;
+  }
+
+  if (lastSearchedCep === cleaned) return;
+
+  setCepLoading(true);
+  cepSearchInProgress = true;
+  lastSearchedCep = cleaned;
+
+  try {
+    const address = await fetchAddressByCep(cepInput.value);
+
+    fillAddressFields(address);
+    showToast("Endereço preenchido automaticamente.");
+  } catch (error) {
+    lastSearchedCep = "";
+    showToast(error.message, "error");
+  } finally {
+    setCepLoading(false);
+    cepSearchInProgress = false;
+  }
 }
 
 function initCepField() {
   const cepInput = document.getElementById("cep");
+  const searchBtn = document.getElementById("cep-search-btn");
+
   if (!cepInput) return;
 
   cepInput.addEventListener("input", () => {
-    cepInput.value = formatCep(cepInput.value);
+    const digits = cleanCep(cepInput.value).slice(0, 8);
+    cepInput.value = formatCep(digits);
+
+    if (digits.length < 8) {
+      lastSearchedCep = "";
+    }
+
+    if (digits.length === 8) {
+      searchCep();
+    }
   });
 
-  cepInput.addEventListener("blur", async () => {
+  cepInput.addEventListener("blur", (event) => {
+    if (searchBtn && event.relatedTarget === searchBtn) return;
+
     const cleaned = cleanCep(cepInput.value);
-
-    if (cleaned.length === 0) return;
-
-    if (cleaned.length !== 8) {
-      showToast("CEP inválido.", "warning");
-      return;
-    }
-
-    showLoading();
-    setButtonsDisabled(true);
-
-    try {
-      const address = await fetchAddressByCep(cepInput.value);
-
-      if (!address) {
-        showToast("CEP inválido.", "error");
-        return;
-      }
-
-      document.getElementById("street").value = address.street;
-      document.getElementById("neighborhood").value = address.neighborhood;
-      document.getElementById("city").value = address.city;
-      document.getElementById("state").value = address.state;
-      document.getElementById("uf").value = address.uf;
-    } catch (error) {
-      showToast(error.message || "CEP inválido.", "error");
-    } finally {
-      hideLoading();
-      setButtonsDisabled(false);
+    if (cleaned.length === 8) {
+      searchCep();
     }
   });
+
+  if (searchBtn) {
+    searchBtn.addEventListener("click", searchCep);
+  }
 }

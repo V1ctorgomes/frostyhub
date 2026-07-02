@@ -106,4 +106,5 @@ Consulte `backend/.env.example` para as variáveis necessárias.
 - [x] PRD-003 — API REST e autenticação
 - [x] PRD-004 — Interface, layout e experiência do usuário
 - [x] PRD-005 — Integração frontend ↔ backend e CRUD
-- [ ] PRD-006 — (próximas etapas)
+- [x] PRD-006 — Integração ViaCEP e automação de endereço
+- [ ] PRD-007 — (próximas etapas)

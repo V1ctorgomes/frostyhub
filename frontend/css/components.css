@@ -115,6 +115,34 @@
   margin-top: var(--spacing-lg);
 }
 
+/* CEP */
+.cep-field {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.cep-field input {
+  flex: 1;
+  min-width: 0;
+}
+
+.cep-loader {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.field--autofilled {
+  border-color: var(--color-primary) !important;
+  background: var(--color-primary-light) !important;
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+
 /* Toast */
 .toast-container {
   position: fixed;
