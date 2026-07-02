@@ -1,16 +1,17 @@
 :root {
-  /* Primária */
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-light: #dbeafe;
+  /* Marca FrostyHub */
+  --color-primary: #1db91d;
+  --color-primary-hover: #147a14;
+  --color-primary-light: #e8f9e8;
+  --color-primary-dark: #0f5c0f;
 
-  /* Secundária */
-  --color-secondary: #64748b;
-  --color-secondary-light: #f1f5f9;
+  --color-secondary: #1a3a8a;
+  --color-secondary-hover: #122a66;
+  --color-secondary-light: #eef3ff;
 
   /* Auxiliares */
-  --color-success: #16a34a;
-  --color-success-light: #dcfce7;
+  --color-success: #1db91d;
+  --color-success-light: #e8f9e8;
   --color-error: #dc2626;
   --color-error-light: #fee2e2;
   --color-warning: #ca8a04;
@@ -18,10 +19,10 @@
 
   /* Neutros */
   --color-white: #ffffff;
-  --color-bg: #f8fafc;
-  --color-border: #e2e8f0;
-  --color-text: #1e293b;
-  --color-text-muted: #64748b;
+  --color-bg: #f8faf8;
+  --color-border: #e2e8e2;
+  --color-text: #1a2e1a;
+  --color-text-muted: #5a6b5a;
 
   /* Tipografia */
   --font-family: "Inter", system-ui, -apple-system, sans-serif;
@@ -38,9 +39,9 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 3px rgba(29, 185, 29, 0.08);
+  --shadow-md: 0 4px 12px rgba(29, 185, 29, 0.12);
+  --shadow-lg: 0 8px 24px rgba(26, 58, 138, 0.1);
 
   /* Transições */
   --transition: 0.2s ease;
