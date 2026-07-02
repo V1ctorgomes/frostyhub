@@ -25,18 +25,11 @@ function getFormData() {
 }
 
 function updateCustomerFormState() {
-  const form = document.getElementById("customer-form");
   const saveBtn = document.getElementById("save-btn");
   const updateBtn = document.getElementById("update-btn");
-  const data = getFormData();
-  const errors = getCustomerValidationErrors(data);
-  const isValid = Object.keys(errors).length === 0;
 
-  clearFormErrors(form);
-  applyFormErrors(errors);
-
-  if (saveBtn) saveBtn.disabled = !isValid || isSubmitting;
-  if (updateBtn) updateBtn.disabled = !isValid || isSubmitting;
+  if (saveBtn) saveBtn.disabled = isSubmitting;
+  if (updateBtn) updateBtn.disabled = isSubmitting;
 }
 
 function resetForm() {
@@ -134,8 +127,8 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-async function loadCustomers() {
-  if (isLoadingCustomers) return;
+async function loadCustomers({ force = false } = {}) {
+  if (isLoadingCustomers && !force) return;
 
   isLoadingCustomers = true;
   const tableSection = document.querySelector(".dashboard-section");
@@ -160,7 +153,7 @@ async function loadCustomers() {
 
     const message =
       sanitizeErrorMessage(error.message) || "Erro ao carregar clientes.";
-    renderTableError(`${message} Clique em recarregar para tentar novamente.`);
+    renderTableError(message);
     showToast(message, "error");
   } finally {
     isLoadingCustomers = false;
@@ -179,9 +172,8 @@ async function handleSave(data) {
   updateCustomerFormState();
 
   try {
-    const customer = await api.createCustomer(data);
-    customers.push(customer);
-    renderTable();
+    await api.createCustomer(data);
+    await loadCustomers({ force: true });
     resetForm();
     closeCustomerModal();
     showToast("Cliente cadastrado com sucesso.");
@@ -211,14 +203,8 @@ async function handleUpdate(id, data) {
   updateCustomerFormState();
 
   try {
-    const customer = await api.updateCustomer(id, data);
-    const index = customers.findIndex((c) => c.id === id);
-
-    if (index !== -1) {
-      customers[index] = customer;
-    }
-
-    renderTable();
+    await api.updateCustomer(id, data);
+    await loadCustomers({ force: true });
     resetForm();
     closeCustomerModal();
     showToast("Cliente atualizado com sucesso.");
@@ -248,8 +234,7 @@ async function handleDelete(id) {
 
   try {
     await api.deleteCustomer(id);
-    customers = customers.filter((c) => c.id !== id);
-    renderTable();
+    await loadCustomers({ force: true });
 
     if (editingId === id) {
       resetForm();
@@ -275,7 +260,6 @@ function initCustomers() {
   const form = document.getElementById("customer-form");
   const cancelBtn = document.getElementById("cancel-btn");
   const openModalBtn = document.getElementById("open-customer-modal-btn");
-  const reloadBtn = document.getElementById("reload-customers-btn");
   const phoneInput = document.getElementById("phone");
   const ufInput = document.getElementById("uf");
   const tableBody = document.getElementById("customers-table-body");
@@ -285,7 +269,6 @@ function initCustomers() {
   initCustomerModal();
 
   openModalBtn?.addEventListener("click", openNewCustomerModal);
-  reloadBtn?.addEventListener("click", loadCustomers);
 
   form.querySelectorAll("input").forEach((input) => {
     input.addEventListener("input", () => {

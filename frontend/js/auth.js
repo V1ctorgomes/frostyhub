@@ -56,17 +56,11 @@ function redirectIfAuthenticated() {
   }
 }
 
-function updateLoginFormState(form) {
-  const email = form.email.value.trim();
-  const password = form.password.value;
-  const errors = getLoginValidationErrors(email, password);
+function updateLoginFormState() {
   const loginBtn = document.getElementById("login-btn");
 
-  clearFormErrors(form);
-  applyFormErrors(errors);
-
   if (loginBtn) {
-    loginBtn.disabled = Object.keys(errors).length > 0 || isLoggingIn;
+    loginBtn.disabled = isLoggingIn;
   }
 }
 
@@ -82,8 +76,8 @@ function initLogin() {
   const errorEl = document.getElementById("login-error");
   const loginBtn = document.getElementById("login-btn");
 
-  form.email.addEventListener("input", () => updateLoginFormState(form));
-  form.password.addEventListener("input", () => updateLoginFormState(form));
+  form.email.addEventListener("input", () => clearFieldError("email"));
+  form.password.addEventListener("input", () => clearFieldError("password"));
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -124,11 +118,11 @@ function initLogin() {
       isLoggingIn = false;
       hideLoading();
       setButtonLoading(loginBtn, false);
-      updateLoginFormState(form);
+      updateLoginFormState();
     }
   });
 
-  updateLoginFormState(form);
+  updateLoginFormState();
 }
 
 function initDashboardAuth() {
