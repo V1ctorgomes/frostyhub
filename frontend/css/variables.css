@@ -1,17 +1,17 @@
 :root {
   /* Marca FrostyHub */
-  --color-primary: #1db91d;
-  --color-primary-hover: #147a14;
-  --color-primary-light: #e8f9e8;
-  --color-primary-dark: #0f5c0f;
+  --color-primary: #00c805;
+  --color-primary-hover: #007a33;
+  --color-primary-light: #e6fce6;
+  --color-primary-dark: #006400;
 
-  --color-secondary: #1a3a8a;
-  --color-secondary-hover: #122a66;
+  --color-secondary: #0038a8;
+  --color-secondary-hover: #002d85;
   --color-secondary-light: #eef3ff;
 
   /* Auxiliares */
-  --color-success: #1db91d;
-  --color-success-light: #e8f9e8;
+  --color-success: #00c805;
+  --color-success-light: #e6fce6;
   --color-error: #dc2626;
   --color-error-light: #fee2e2;
   --color-warning: #ca8a04;
