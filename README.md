@@ -105,4 +105,5 @@ Consulte `backend/.env.example` para as variáveis necessárias.
 - [x] PRD-002 — Modelagem do banco de dados
 - [x] PRD-003 — API REST e autenticação
 - [x] PRD-004 — Interface, layout e experiência do usuário
-- [ ] PRD-005 — (próximas etapas)
+- [x] PRD-005 — Integração frontend ↔ backend e CRUD
+- [ ] PRD-006 — (próximas etapas)

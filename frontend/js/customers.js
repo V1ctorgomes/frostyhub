@@ -1,16 +1,19 @@
 let customers = [];
 let editingId = null;
-let nextId = 1;
 
 function getFormData() {
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const complement = document.getElementById("complement").value.trim();
+
   return {
     name: document.getElementById("name").value.trim(),
-    email: document.getElementById("email").value.trim(),
-    phone: document.getElementById("phone").value.trim(),
+    email: email || null,
+    phone: phone || null,
     cep: document.getElementById("cep").value.trim(),
     street: document.getElementById("street").value.trim(),
     number: document.getElementById("number").value.trim(),
-    complement: document.getElementById("complement").value.trim(),
+    complement: complement || null,
     neighborhood: document.getElementById("neighborhood").value.trim(),
     city: document.getElementById("city").value.trim(),
     state: document.getElementById("state").value.trim(),
@@ -113,17 +116,39 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+async function loadCustomers() {
+  showLoading();
+  setButtonsDisabled(true);
+
+  try {
+    customers = await api.getCustomers();
+    renderTable();
+  } catch (error) {
+    if (error.message !== "Sessão expirada.") {
+      showToast(error.message || "Erro ao carregar clientes.", "error");
+    }
+  } finally {
+    hideLoading();
+    setButtonsDisabled(false);
+  }
+}
+
 async function handleSave(data) {
   showLoading();
   setButtonsDisabled(true);
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
-    customers.push({ id: nextId++, ...data });
+    const customer = await api.createCustomer(data);
+    customers.push(customer);
     renderTable();
     resetForm();
-    showToast("Cadastro realizado com sucesso.");
+    document.getElementById("name").focus();
+    showToast("Cliente cadastrado com sucesso.");
+  } catch (error) {
+    if (error.message !== "Sessão expirada.") {
+      showToast(error.message || "Erro ao salvar cliente.", "error");
+    }
+    throw error;
   } finally {
     hideLoading();
     setButtonsDisabled(false);
@@ -135,15 +160,21 @@ async function handleUpdate(id, data) {
   setButtonsDisabled(true);
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
+    const customer = await api.updateCustomer(id, data);
     const index = customers.findIndex((c) => c.id === id);
-    if (index === -1) throw new Error("Cliente não encontrado.");
 
-    customers[index] = { id, ...data };
+    if (index !== -1) {
+      customers[index] = customer;
+    }
+
     renderTable();
     resetForm();
-    showToast("Atualização realizada com sucesso.");
+    showToast("Cliente atualizado com sucesso.");
+  } catch (error) {
+    if (error.message !== "Sessão expirada.") {
+      showToast(error.message || "Erro ao atualizar cliente.", "error");
+    }
+    throw error;
   } finally {
     hideLoading();
     setButtonsDisabled(false);
@@ -158,14 +189,18 @@ async function handleDelete(id) {
   setButtonsDisabled(true);
 
   try {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
+    await api.deleteCustomer(id);
     customers = customers.filter((c) => c.id !== id);
     renderTable();
 
     if (editingId === id) resetForm();
 
     showToast("Cliente removido com sucesso.");
+  } catch (error) {
+    if (error.message !== "Sessão expirada.") {
+      showToast(error.message || "Erro ao excluir cliente.", "error");
+    }
+    throw error;
   } finally {
     hideLoading();
     setButtonsDisabled(false);
@@ -203,8 +238,8 @@ function initCustomers() {
       } else {
         await handleSave(data);
       }
-    } catch (error) {
-      showToast(error.message, "error");
+    } catch {
+      // Erros já exibidos nos handlers
     }
   });
 
@@ -227,11 +262,11 @@ function initCustomers() {
     if (action === "delete") {
       try {
         await handleDelete(id);
-      } catch (error) {
-        showToast(error.message || "Erro ao excluir cliente.", "error");
+      } catch {
+        // Erro já exibido no handler
       }
     }
   });
 
-  renderTable();
+  loadCustomers();
 }

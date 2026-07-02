@@ -1,19 +1,46 @@
+const STORAGE_KEYS = {
+  token: "token",
+  userName: "userName",
+  userEmail: "userEmail",
+};
+
 function isAuthenticated() {
-  return !!localStorage.getItem("token");
+  return !!localStorage.getItem(STORAGE_KEYS.token);
+}
+
+function getToken() {
+  return localStorage.getItem(STORAGE_KEYS.token);
 }
 
 function getUser() {
-  const user = sessionStorage.getItem("user");
-  return user ? JSON.parse(user) : null;
+  const name = localStorage.getItem(STORAGE_KEYS.userName);
+  const email = localStorage.getItem(STORAGE_KEYS.userEmail);
+
+  if (!name && !email) return null;
+
+  return { name, email };
 }
 
-function setUser(user) {
-  sessionStorage.setItem("user", JSON.stringify(user));
+function saveSession(token, user) {
+  localStorage.setItem(STORAGE_KEYS.token, token);
+  localStorage.setItem(STORAGE_KEYS.userName, user.name);
+  localStorage.setItem(STORAGE_KEYS.userEmail, user.email);
+}
+
+function clearSession() {
+  localStorage.removeItem(STORAGE_KEYS.token);
+  localStorage.removeItem(STORAGE_KEYS.userName);
+  localStorage.removeItem(STORAGE_KEYS.userEmail);
 }
 
 function logout() {
-  localStorage.removeItem("token");
-  sessionStorage.removeItem("user");
+  clearSession();
+  window.location.href = "login.html";
+}
+
+function handleSessionExpired() {
+  clearSession();
+  sessionStorage.setItem("sessionExpired", "1");
   window.location.href = "login.html";
 }
 
@@ -33,6 +60,11 @@ function redirectIfAuthenticated() {
 
 function initLogin() {
   redirectIfAuthenticated();
+
+  if (sessionStorage.getItem("sessionExpired")) {
+    sessionStorage.removeItem("sessionExpired");
+    showToast("Sua sessão expirou. Faça login novamente.", "warning");
+  }
 
   const form = document.getElementById("login-form");
   const errorEl = document.getElementById("login-error");
@@ -56,14 +88,15 @@ function initLogin() {
     loginBtn.disabled = true;
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const result = await api.login(email, password);
 
-      localStorage.setItem("token", "mock-jwt-token-prd-004");
-      setUser({ id: 1, name: "Usuário Demo", email });
+      saveSession(result.token, result.user);
 
+      showToast("Login realizado com sucesso.");
       window.location.href = "dashboard.html";
     } catch (error) {
-      errorEl.textContent = error.message || "Email ou senha inválidos.";
+      const message = error.message || "Email ou senha inválidos.";
+      errorEl.textContent = message;
       errorEl.hidden = false;
       showToast("Login inválido.", "error");
     } finally {

@@ -9,16 +9,39 @@ function getAuthHeaders() {
   return headers;
 }
 
-async function request(endpoint, options = {}) {
-  const response = await fetch(`${CONFIG.API_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      ...getAuthHeaders(),
-      ...options.headers,
-    },
-  });
+async function parseResponse(response) {
+  let data;
 
-  const data = await response.json();
+  try {
+    data = await response.json();
+  } catch {
+    data = { message: "Falha de comunicação com o servidor." };
+  }
+
+  return data;
+}
+
+async function request(endpoint, options = {}) {
+  let response;
+
+  try {
+    response = await fetch(`${CONFIG.API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        ...getAuthHeaders(),
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new Error("Falha de comunicação com o servidor.");
+  }
+
+  const data = await parseResponse(response);
+
+  if (response.status === 401 && endpoint !== "/auth/login") {
+    handleSessionExpired();
+    throw new Error("Sessão expirada.");
+  }
 
   if (!response.ok) {
     throw new Error(data.message || "Erro na requisição.");
@@ -35,29 +58,33 @@ const api = {
     });
   },
 
-  getCustomers() {
-    return request("/customers");
+  async getCustomers() {
+    const response = await request("/customers");
+    return response.data || [];
   },
 
-  getCustomer(id) {
-    return request(`/customers/${id}`);
+  async getCustomer(id) {
+    const response = await request(`/customers/${id}`);
+    return response.data;
   },
 
-  createCustomer(customer) {
-    return request("/customers", {
+  async createCustomer(customer) {
+    const response = await request("/customers", {
       method: "POST",
       body: JSON.stringify(customer),
     });
+    return response.data;
   },
 
-  updateCustomer(id, customer) {
-    return request(`/customers/${id}`, {
+  async updateCustomer(id, customer) {
+    const response = await request(`/customers/${id}`, {
       method: "PUT",
       body: JSON.stringify(customer),
     });
+    return response.data;
   },
 
-  deleteCustomer(id) {
+  async deleteCustomer(id) {
     return request(`/customers/${id}`, {
       method: "DELETE",
     });

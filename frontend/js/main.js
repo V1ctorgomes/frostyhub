@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (page === "dashboard") {
+    if (!requireAuth()) return;
+
     initDashboardAuth();
     initCepField();
     initCustomers();
