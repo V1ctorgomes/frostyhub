@@ -1,5 +1,4 @@
 const VIA_CEP_URL = "https://viacep.com.br/ws";
-const CEP_REGEX = /^[0-9]{8}$/;
 
 const UF_NAMES = {
   AC: "Acre",
@@ -46,10 +45,6 @@ function cleanCep(cep) {
   return cep.replace(/\D/g, "");
 }
 
-function isValidCepFormat(cep) {
-  return CEP_REGEX.test(cleanCep(cep));
-}
-
 function sanitize(value) {
   return String(value || "").trim();
 }
@@ -69,7 +64,7 @@ function mapViaCepResponse(data) {
 async function fetchAddressByCep(cep) {
   const cleaned = cleanCep(cep);
 
-  if (!isValidCepFormat(cleaned)) {
+  if (!isValidCepDigits(cleaned)) {
     throw new Error("CEP inválido. Digite 8 números.");
   }
 
@@ -146,7 +141,7 @@ async function searchCep() {
 
   if (cleaned.length === 0) return;
 
-  if (!isValidCepFormat(cleaned)) {
+  if (!isValidCepDigits(cleaned)) {
     showToast("CEP inválido. Digite 8 números.", "warning");
     return;
   }
