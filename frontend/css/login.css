@@ -28,8 +28,8 @@
 }
 
 .login-card__header .logo__image {
-  width: auto;
-  max-width: 80px;
+  width: 100%;
+  max-width: 150px;
   height: auto;
   margin: 0 auto;
   display: block;
