@@ -30,10 +30,6 @@ function getCustomerValidationErrors(data) {
   return errors;
 }
 
-function isCustomerFormValid(data) {
-  return Object.keys(getCustomerValidationErrors(data)).length === 0;
-}
-
 function getLoginValidationErrors(email, password) {
   const errors = {};
 

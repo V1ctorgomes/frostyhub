@@ -1,3 +1,3 @@
 const CONFIG = {
-  API_URL: "https://frostyhub-backend.pknzmz.easypanel.host/api",
+  API_URL: "http://localhost:3001/api",
 };

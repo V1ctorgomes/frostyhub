@@ -1,25 +1,25 @@
-# Banco de Dados — PostgreSQL
+# Banco de dados
 
-Scripts SQL do FrostyHub para inicialização do banco.
+Pasta com os scripts SQL do projeto.
 
 ## Arquivos
 
-| Arquivo    | Descrição                              |
-|------------|----------------------------------------|
-| `init.sql` | Criação das tabelas `users` e `customers` |
-| `seed.sql` | Dados iniciais (usuário admin de teste) |
+- init.sql — cria as tabelas users e customers
+- seed.sql — cria o usuário admin de teste
 
-## Variáveis de ambiente
+## Variáveis
 
-```env
+No postgres você precisa configurar:
+
+```
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=sua_senha_segura
+POSTGRES_PASSWORD=sua_senha
 POSTGRES_DB=frosthub_db
 ```
 
-> O nome do banco (`POSTGRES_DB`) deve ser o mesmo usado na `DATABASE_URL` do backend.
+O nome do banco tem que bater com o que você colocar na DATABASE_URL do backend.
 
-## Docker (desenvolvimento local)
+## Rodar com Docker
 
 ```bash
 docker run -d \
@@ -34,29 +34,29 @@ docker run -d \
   postgres:17-alpine
 ```
 
-O script `init.sql` é executado automaticamente na **primeira** inicialização do volume.
+Na primeira vez que o container sobe, o init.sql roda sozinho.
 
-Após subir o container, execute o seed:
+Depois roda o seed:
 
 ```bash
 docker exec -i frostyhub-db psql -U postgres -d frosthub_db < seed.sql
 ```
 
-## EasyPanel
+## No EasyPanel
 
-1. Crie um serviço **PostgreSQL** (template do painel).
-2. Configure `POSTGRES_USER`, `POSTGRES_PASSWORD` e `POSTGRES_DB`.
-3. Ative **volume persistente** (obrigatório).
-4. No terminal do PostgreSQL, execute `init.sql` e depois `seed.sql`.
-5. Use o **hostname interno** do serviço na `DATABASE_URL` do backend:
+1. Cria o serviço de PostgreSQL
+2. Ativa volume persistente
+3. Abre o terminal e cola o conteúdo do init.sql
+4. Depois roda o seed.sql
+5. Na DATABASE_URL do backend, usa o hostname interno do postgres (não usa localhost)
 
-```env
-DATABASE_URL=postgresql://postgres:SENHA@nome-servico-postgres:5432/frosthub_db?sslmode=disable
+Exemplo:
+
+```
+DATABASE_URL=postgresql://postgres:SENHA@nome-do-postgres:5432/frosthub_db?sslmode=disable
 ```
 
-> Em produção, **nunca** use `localhost` na `DATABASE_URL` do backend — use o hostname do container na rede Docker.
+## Usuário de teste
 
-## Credenciais de teste (seed)
-
-- E-mail: `admin@frostyhub.com`
-- Senha: `admin123`
+- admin@frostyhub.com
+- admin123

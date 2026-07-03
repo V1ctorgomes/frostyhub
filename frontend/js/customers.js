@@ -9,58 +9,58 @@ const ACTION_ICONS = {
   delete: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
 };
 
-function getActionIcon(name) {
-  return ACTION_ICONS[name] || "";
-}
+const VIEW_FIELDS = [
+  ["view-name", "name"],
+  ["view-email", "email"],
+  ["view-phone", "phone"],
+  ["view-cep", "cep"],
+  ["view-street", "street"],
+  ["view-number", "number"],
+  ["view-complement", "complement"],
+  ["view-neighborhood", "neighborhood"],
+  ["view-city", "city"],
+  ["view-state", "state"],
+  ["view-uf", "uf"],
+];
 
 function openCustomerModal() {
-  const modal = document.getElementById("customer-modal");
-  if (modal) modal.hidden = false;
+  document.getElementById("customer-modal").hidden = false;
   document.body.style.overflow = "hidden";
 }
 
 function closeCustomerModal() {
-  const modal = document.getElementById("customer-modal");
-  if (modal) modal.hidden = true;
+  document.getElementById("customer-modal").hidden = true;
   document.body.style.overflow = "";
+}
+
+function closeViewCustomerModal() {
+  document.getElementById("view-customer-modal").hidden = true;
+  document.body.style.overflow = "";
+}
+
+function openViewCustomerModal() {
+  document.getElementById("view-customer-modal").hidden = false;
+  document.body.style.overflow = "hidden";
 }
 
 function initCustomerModal() {
   const modal = document.getElementById("customer-modal");
   const closeBtn = document.getElementById("close-customer-modal-btn");
 
-  if (!modal) return;
-
-  closeBtn?.addEventListener("click", () => {
+  function close() {
     closeCustomerModal();
     resetForm();
-  });
+  }
+
+  closeBtn.addEventListener("click", close);
 
   modal.addEventListener("click", (event) => {
-    if (event.target === modal) {
-      closeCustomerModal();
-      resetForm();
-    }
+    if (event.target === modal) close();
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !modal.hidden) {
-      closeCustomerModal();
-      resetForm();
-    }
+    if (event.key === "Escape" && !modal.hidden) close();
   });
-}
-
-function closeViewCustomerModal() {
-  const modal = document.getElementById("view-customer-modal");
-  if (modal) modal.hidden = true;
-  document.body.style.overflow = "";
-}
-
-function openViewCustomerModal() {
-  const modal = document.getElementById("view-customer-modal");
-  if (modal) modal.hidden = false;
-  document.body.style.overflow = "hidden";
 }
 
 function initViewCustomerModal() {
@@ -68,14 +68,12 @@ function initViewCustomerModal() {
   const closeBtn = document.getElementById("close-view-customer-modal-btn");
   const closeFooterBtn = document.getElementById("view-close-btn");
 
-  if (!modal) return;
-
   function close() {
     closeViewCustomerModal();
   }
 
-  closeBtn?.addEventListener("click", close);
-  closeFooterBtn?.addEventListener("click", close);
+  closeBtn.addEventListener("click", close);
+  closeFooterBtn.addEventListener("click", close);
 
   modal.addEventListener("click", (event) => {
     if (event.target === modal) close();
@@ -112,21 +110,13 @@ function setCustomerFormMode(mode) {
   const updateBtn = document.getElementById("update-btn");
   const isEdit = mode === "edit";
 
-  if (saveBtn) {
-    saveBtn.hidden = isEdit;
-    saveBtn.type = isEdit ? "button" : "submit";
-    saveBtn.disabled = isSubmitting;
-  }
+  saveBtn.hidden = isEdit;
+  saveBtn.type = isEdit ? "button" : "submit";
+  saveBtn.disabled = isSubmitting;
 
-  if (updateBtn) {
-    updateBtn.hidden = !isEdit;
-    updateBtn.type = isEdit ? "submit" : "button";
-    updateBtn.disabled = isSubmitting;
-  }
-}
-
-function updateCustomerFormState() {
-  setCustomerFormMode(editingId ? "edit" : "create");
+  updateBtn.hidden = !isEdit;
+  updateBtn.type = isEdit ? "submit" : "button";
+  updateBtn.disabled = isSubmitting;
 }
 
 function resetForm() {
@@ -134,12 +124,9 @@ function resetForm() {
   form.reset();
   document.getElementById("customer-id").value = "";
   editingId = null;
-
   clearFormErrors(form);
   document.getElementById("form-title").textContent = "Cadastrar Cliente";
   setCustomerFormMode("create");
-
-  updateCustomerFormState();
 }
 
 function openNewCustomerModal() {
@@ -162,30 +149,16 @@ function setEditMode(customer) {
   document.getElementById("city").value = customer.city;
   document.getElementById("state").value = customer.state;
   document.getElementById("uf").value = customer.uf;
-
   document.getElementById("form-title").textContent = "Editar Cliente";
   setCustomerFormMode("edit");
-
-  updateCustomerFormState();
   openCustomerModal();
   document.getElementById("name").focus();
 }
 
 function showViewCustomer(customer) {
-  document.getElementById("view-name").textContent = customer.name || "—";
-  document.getElementById("view-email").textContent = customer.email || "—";
-  document.getElementById("view-phone").textContent = customer.phone || "—";
-  document.getElementById("view-cep").textContent = customer.cep || "—";
-  document.getElementById("view-street").textContent = customer.street || "—";
-  document.getElementById("view-number").textContent = customer.number || "—";
-  document.getElementById("view-complement").textContent =
-    customer.complement || "—";
-  document.getElementById("view-neighborhood").textContent =
-    customer.neighborhood || "—";
-  document.getElementById("view-city").textContent = customer.city || "—";
-  document.getElementById("view-state").textContent = customer.state || "—";
-  document.getElementById("view-uf").textContent = customer.uf || "—";
-
+  VIEW_FIELDS.forEach(([elementId, key]) => {
+    document.getElementById(elementId).textContent = customer[key] || "—";
+  });
   openViewCustomerModal();
 }
 
@@ -222,13 +195,13 @@ function renderTable() {
       <td>
         <div class="data-table__actions">
           <button type="button" class="btn btn--ghost btn--action-icon" data-action="view" data-id="${customer.id}" aria-label="Ver ${escapeHtml(customer.name)}" title="Ver cliente">
-            ${getActionIcon("view")}
+            ${ACTION_ICONS.view}
           </button>
           <button type="button" class="btn btn--ghost btn--action-icon" data-action="edit" data-id="${customer.id}" aria-label="Editar ${escapeHtml(customer.name)}" title="Editar">
-            ${getActionIcon("edit")}
+            ${ACTION_ICONS.edit}
           </button>
           <button type="button" class="btn btn--ghost btn--action-icon btn--action-icon--danger" data-action="delete" data-id="${customer.id}" aria-label="Excluir ${escapeHtml(customer.name)}" title="Excluir">
-            ${getActionIcon("delete")}
+            ${ACTION_ICONS.delete}
           </button>
         </div>
       </td>
@@ -243,7 +216,10 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-async function loadCustomers({ force = false, withOverlay = false } = {}) {
+async function loadCustomers(options = {}) {
+  const force = options.force === true;
+  const withOverlay = options.withOverlay === true;
+
   if (isLoadingCustomers && !force) return;
 
   isLoadingCustomers = true;
@@ -255,8 +231,7 @@ async function loadCustomers({ force = false, withOverlay = false } = {}) {
       throw new Error("Sessão não encontrada. Faça login novamente.");
     }
 
-    const data = await api.getCustomers();
-    customers = data;
+    customers = await api.getCustomers();
     renderTable();
   } catch (error) {
     customers = [];
@@ -284,7 +259,7 @@ async function handleSave(data) {
   isSubmitting = true;
   showLoading();
   setButtonLoading(saveBtn, true);
-  updateCustomerFormState();
+  setCustomerFormMode("create");
 
   try {
     await api.createCustomer(data);
@@ -299,12 +274,11 @@ async function handleSave(data) {
         "error"
       );
     }
-    throw error;
   } finally {
     isSubmitting = false;
     hideLoading();
     setButtonLoading(saveBtn, false);
-    updateCustomerFormState();
+    setCustomerFormMode(editingId ? "edit" : "create");
   }
 }
 
@@ -315,7 +289,7 @@ async function handleUpdate(id, data) {
   isSubmitting = true;
   showLoading();
   setButtonLoading(updateBtn, true);
-  updateCustomerFormState();
+  setCustomerFormMode("edit");
 
   try {
     await api.updateCustomer(id, data);
@@ -330,12 +304,11 @@ async function handleUpdate(id, data) {
         "error"
       );
     }
-    throw error;
   } finally {
     isSubmitting = false;
     hideLoading();
     setButtonLoading(updateBtn, false);
-    updateCustomerFormState();
+    setCustomerFormMode(editingId ? "edit" : "create");
   }
 }
 
@@ -363,7 +336,6 @@ async function handleDelete(id) {
         "error"
       );
     }
-    throw error;
   } finally {
     hideLoading();
     setTableActionButtonsDisabled(false);
@@ -378,9 +350,9 @@ function initCustomers() {
   const phoneInput = document.getElementById("phone");
   const ufInput = document.getElementById("uf");
 
-  openModalBtn?.addEventListener("click", openNewCustomerModal);
+  openModalBtn.addEventListener("click", openNewCustomerModal);
 
-  tableBody?.addEventListener("click", async (event) => {
+  tableBody.addEventListener("click", async (event) => {
     const button = event.target.closest("button[data-action]");
     if (!button || isLoadingCustomers) return;
 
@@ -390,47 +362,26 @@ function initCustomers() {
 
     if (!customer) return;
 
-    if (action === "view") {
-      showViewCustomer(customer);
-    }
-
-    if (action === "edit") {
-      setEditMode(customer);
-    }
-
-    if (action === "delete") {
-      try {
-        await handleDelete(id);
-      } catch {
-        // Erro já exibido no handler
-      }
-    }
+    if (action === "view") showViewCustomer(customer);
+    if (action === "edit") setEditMode(customer);
+    if (action === "delete") await handleDelete(id);
   });
 
   initCustomerModal();
   initViewCustomerModal();
   loadCustomers();
 
-  if (!form) return;
-
   form.querySelectorAll("input").forEach((input) => {
-    input.addEventListener("input", () => {
-      clearFieldError(input.id);
-      updateCustomerFormState();
-    });
+    input.addEventListener("input", () => clearFieldError(input.id));
   });
 
-  if (phoneInput) {
-    phoneInput.addEventListener("input", () => {
-      phoneInput.value = formatPhone(phoneInput.value);
-    });
-  }
+  phoneInput.addEventListener("input", () => {
+    phoneInput.value = formatPhone(phoneInput.value);
+  });
 
-  if (ufInput) {
-    ufInput.addEventListener("input", () => {
-      ufInput.value = ufInput.value.toUpperCase().slice(0, 2);
-    });
-  }
+  ufInput.addEventListener("input", () => {
+    ufInput.value = ufInput.value.toUpperCase().slice(0, 2);
+  });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -447,21 +398,15 @@ function initCustomers() {
       return;
     }
 
-    try {
-      if (editingId) {
-        await handleUpdate(editingId, data);
-      } else {
-        await handleSave(data);
-      }
-    } catch {
-      // Erros já exibidos nos handlers
+    if (editingId) {
+      await handleUpdate(editingId, data);
+    } else {
+      await handleSave(data);
     }
   });
 
-  cancelBtn?.addEventListener("click", () => {
+  cancelBtn.addEventListener("click", () => {
     resetForm();
     closeCustomerModal();
   });
-
-  updateCustomerFormState();
 }

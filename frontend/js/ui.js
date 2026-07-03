@@ -1,16 +1,8 @@
 const TOAST_DURATION = 4000;
 
 let loadingCount = 0;
-let lastToastMessage = "";
-let lastToastTime = 0;
 
 function showToast(message, type = "success") {
-  const now = Date.now();
-  if (message === lastToastMessage && now - lastToastTime < 500) return;
-
-  lastToastMessage = message;
-  lastToastTime = now;
-
   const container = document.getElementById("toast-container");
   if (!container) return;
 
@@ -20,7 +12,6 @@ function showToast(message, type = "success") {
   toast.setAttribute("role", "alert");
 
   container.appendChild(toast);
-
   setTimeout(() => toast.remove(), TOAST_DURATION);
 }
 
@@ -36,13 +27,6 @@ function hideLoading() {
     const overlay = document.getElementById("loading");
     if (overlay) overlay.hidden = true;
   }
-}
-
-function setButtonsDisabled(disabled, container = document, exceptIds = []) {
-  container.querySelectorAll("button, input[type='submit']").forEach((btn) => {
-    if (exceptIds.includes(btn.id)) return;
-    btn.disabled = disabled;
-  });
 }
 
 function setTableActionButtonsDisabled(disabled) {
@@ -97,7 +81,8 @@ function clearFormErrors(form) {
 
   form.querySelectorAll(".form-group--error").forEach((group) => {
     group.classList.remove("form-group--error");
-    group.querySelector(".form-group__error")?.remove();
+    const errorEl = group.querySelector(".form-group__error");
+    if (errorEl) errorEl.remove();
   });
 }
 
@@ -175,19 +160,8 @@ function formatCep(value) {
 
 function sanitizeErrorMessage(message) {
   if (!message) return "Ocorreu um erro. Tente novamente.";
-
-  const technicalPatterns = [
-    /sql/i,
-    /stack/i,
-    /undefined/i,
-    /null/i,
-    /ECONNREFUSED/i,
-    /internal server/i,
-  ];
-
-  if (technicalPatterns.some((pattern) => pattern.test(message))) {
+  if (/sql|stack|ECONNREFUSED|internal server/i.test(message)) {
     return "Ocorreu um erro. Tente novamente.";
   }
-
   return message;
 }

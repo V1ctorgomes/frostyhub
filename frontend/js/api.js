@@ -56,8 +56,7 @@ const api = {
 
   async getCustomers() {
     const response = await request("/customers");
-    const data = response?.data;
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(response.data) ? response.data : [];
   },
 
   async getCustomer(id) {
@@ -81,7 +80,7 @@ const api = {
     return response.data;
   },
 
-  async deleteCustomer(id) {
+  deleteCustomer(id) {
     return request(`/customers/${id}`, {
       method: "DELETE",
     });

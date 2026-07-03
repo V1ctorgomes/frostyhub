@@ -1,46 +1,108 @@
-# FrostyHub
+# FrostHub
 
-Sistema web para gerenciamento de clientes com integração à API ViaCEP.
+Projeto feito para o teste técnico da Frosty. É um sistema simples de cadastro de clientes com login.
 
-## Arquitetura
+## Sobre o projeto
 
-| Serviço    | Porta | Tecnologia              |
-|------------|------:|-------------------------|
-| Frontend   |  3000 | HTML, CSS, JS + Nginx   |
-| Backend    |  3001 | Node.js + Express       |
-| PostgreSQL |  5432 | PostgreSQL              |
+A ideia é ter uma tela de login e, depois de entrar, um dashboard onde dá pra listar, cadastrar, editar e excluir clientes. Quando você digita o CEP, o endereço é buscado na API do ViaCEP.
 
-```text
-Usuário → Frontend (Nginx :3000) → Backend (Express :3001) → PostgreSQL (:5432)
+Fui montando o projeto aos poucos, seguindo os PRDs que a Frosty passou.
+
+## Tecnologias
+
+- Frontend: HTML, CSS e JavaScript puro (sem framework)
+- Backend: Node.js com Express
+- Banco: PostgreSQL
+- Deploy: Docker no EasyPanel
+
+## Como o sistema se comunica
+
+```
+navegador → frontend (porta 3000) → backend (porta 3001) → postgres (porta 5432)
 ```
 
-Cada serviço roda em um **container Docker independente**, com comunicação via rede interna.
+O frontend só serve os arquivos estáticos. O backend é quem fala com o banco.
 
-## Estrutura do Projeto
+No backend eu separei assim: rotas → controllers → services → queries SQL.
 
-```text
+## Estrutura das pastas
+
+```
 frostyhub/
-├── frontend/
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   ├── docker-entrypoint.sh
-│   └── arquivos estáticos (HTML, CSS, JS)
-├── backend/
-│   ├── Dockerfile
-│   └── src/
-└── database/
-    ├── init.sql
-    └── seed.sql
+├── frontend/     interface
+├── backend/      api
+├── database/     scripts sql
+└── docs/         prints e coisas extras
 ```
 
-## Pré-requisitos
+## Rodar na sua máquina
 
-- Docker
-- Node.js LTS (apenas para desenvolvimento local sem Docker)
+Você vai precisar do Docker instalado. Se quiser rodar o backend sem container, precisa do Node também.
 
-## Desenvolvimento Local
+### Com Docker
 
-### Backend
+Primeiro cria a rede (só precisa fazer uma vez):
+
+```bash
+docker network create frostyhub-net
+```
+
+Sobe o banco:
+
+```bash
+docker run -d \
+  --name frostyhub-db \
+  --network frostyhub-net \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=frosthub_db \
+  -p 5432:5432 \
+  -v frostyhub_pgdata:/var/lib/postgresql/data \
+  -v "$(pwd)/database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro" \
+  postgres:17-alpine
+```
+
+Roda o seed pra criar o usuário de teste:
+
+```bash
+docker exec -i frostyhub-db psql -U postgres -d frosthub_db < database/seed.sql
+```
+
+Sobe o backend:
+
+```bash
+cd backend
+docker build -t frostyhub-backend .
+docker run -d \
+  --name frostyhub-backend \
+  --network frostyhub-net \
+  -p 3001:3001 \
+  -e PORT=3001 \
+  -e NODE_ENV=production \
+  -e DATABASE_URL=postgresql://postgres:postgres@frostyhub-db:5432/frosthub_db \
+  -e FRONTEND_URL=http://localhost:3000 \
+  -e JWT_SECRET=chave_local_desenvolvimento \
+  frostyhub-backend
+```
+
+Sobe o frontend:
+
+```bash
+cd frontend
+docker build -t frostyhub-frontend .
+docker run -d \
+  --name frostyhub-frontend \
+  --network frostyhub-net \
+  -p 3000:3000 \
+  -e API_URL=http://localhost:3001/api \
+  frostyhub-frontend
+```
+
+Abre http://localhost:3000 no navegador.
+
+### Sem Docker (só pra desenvolver)
+
+No backend:
 
 ```bash
 cd backend
@@ -49,9 +111,7 @@ npm install
 npm run dev
 ```
 
-### Frontend
-
-Edite `frontend/js/config.js` com a URL da API local:
+No frontend, abre o arquivo frontend/js/config.js e deixa assim:
 
 ```javascript
 const CONFIG = {
@@ -59,149 +119,76 @@ const CONFIG = {
 };
 ```
 
-Sirva os arquivos estáticos ou abra `frontend/index.html` via servidor local.
+Aí sobe a pasta frontend com algum servidor estático. Eu usei `npx serve .` dentro da pasta frontend.
 
-### Banco de Dados
+O banco você configura separado. Tem mais detalhe no database/README.md.
 
-Consulte [database/README.md](database/README.md).
+## Login de teste
 
-## Docker (build por serviço)
+Depois de rodar o seed.sql:
 
-### Frontend
+- email: admin@frostyhub.com
+- senha: admin123
 
-```bash
-cd frontend
-docker build -t frostyhub-frontend .
-docker run -p 3000:3000 \
-  -e API_URL=http://localhost:3001/api \
-  frostyhub-frontend
+## Versão online (EasyPanel)
+
+Deixei o projeto no ar pra facilitar a avaliação:
+
+- Frontend: https://frostyhub-frontend.pknzmz.easypanel.host/
+- Backend: https://frostyhub-backend.pknzmz.easypanel.host/
+
+No EasyPanel são 3 serviços separados: postgres, backend e frontend. Cada um com seu Dockerfile. O repositório é o mesmo, mas no deploy eu aponto o path da pasta certa (/backend ou /frontend).
+
+No postgres roda o init.sql e o seed.sql manualmente pelo terminal do painel. No backend coloco as variáveis de ambiente. No frontend só preciso da API_URL apontando pro backend.
+
+## Rotas da API
+
+Login (público):
+
+- POST /api/auth/login
+
+Clientes (precisa estar logado, manda o token no header Authorization):
+
+- GET /api/customers
+- GET /api/customers/:id
+- POST /api/customers
+- PUT /api/customers/:id
+- DELETE /api/customers/:id
+
+Exemplo do header: Authorization: Bearer seu_token_aqui
+
+## Variáveis de ambiente
+
+Backend (.env):
+
 ```
-
-### Backend
-
-```bash
-cd backend
-docker build -t frostyhub-backend .
-docker run -p 3001:3001 \
-  -e PORT=3001 \
-  -e NODE_ENV=production \
-  -e DATABASE_URL=postgresql://postgres:postgres@host-do-postgres:5432/frosthub_db \
-  -e FRONTEND_URL=http://localhost:3000 \
-  -e JWT_SECRET=sua_chave_secreta \
-  frostyhub-backend
-```
-
-## Deploy no EasyPanel
-
-O deploy usa **3 serviços separados** no painel, cada um com seu Dockerfile. Não é necessário docker-compose.
-
-### 1. PostgreSQL
-
-1. Crie um serviço **PostgreSQL** (template).
-2. Configure as variáveis:
-   - `POSTGRES_USER`
-   - `POSTGRES_PASSWORD`
-   - `POSTGRES_DB` (ex: `frosthub_db`)
-3. Ative **volume persistente**.
-4. No terminal do container, execute `database/init.sql` e `database/seed.sql`.
-
-### 2. Backend
-
-1. Crie um App com **Path**: `/backend`
-2. Porta interna: **3001**
-3. Variáveis de ambiente:
-
-```env
 PORT=3001
 NODE_ENV=production
-DATABASE_URL=postgresql://postgres:SENHA@hostname-interno-postgres:5432/frosthub_db?sslmode=disable
-FRONTEND_URL=https://seu-frontend.easypanel.host
-JWT_SECRET=uma_chave_secreta_forte_e_fixa
+DATABASE_URL=postgresql://usuario:senha@host-do-banco:5432/frosthub_db
+FRONTEND_URL=https://url-do-frontend
+JWT_SECRET=uma_chave_secreta
 ```
 
-> Use o **hostname interno** do PostgreSQL (não `localhost`).
+Frontend (no EasyPanel):
 
-### 3. Frontend
-
-1. Crie um App com **Path**: `/frontend`
-2. Porta interna: **3000**
-3. Variável de ambiente:
-
-```env
-API_URL=https://seu-backend.easypanel.host/api
+```
+API_URL=https://url-do-backend/api
 ```
 
-O `docker-entrypoint.sh` gera `js/config.js` automaticamente na inicialização do container.
+Postgres:
 
-## API REST
+```
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=sua_senha
+POSTGRES_DB=frosthub_db
+```
 
-### Autenticação
+Importante: no deploy, o backend não pode usar localhost pra falar com o banco. Tem que ser o hostname interno que o EasyPanel mostra.
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/api/auth/login` | Login (retorna JWT) |
+## Prints
 
-### Clientes (requer token JWT)
+Ainda vou colocar as imagens na pasta docs/screenshots/. Por enquanto dá pra testar direto no link do frontend.
 
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/api/customers` | Listar clientes |
-| GET | `/api/customers/:id` | Buscar por ID |
-| POST | `/api/customers` | Cadastrar |
-| PUT | `/api/customers/:id` | Atualizar |
-| DELETE | `/api/customers/:id` | Excluir |
+## Repositório
 
-Envie o token no header: `Authorization: Bearer <token>`
-
-## Variáveis de Ambiente
-
-### Backend
-
-| Variável | Obrigatória | Descrição |
-|----------|:-----------:|-----------|
-| `PORT` | — | Porta do servidor (padrão: 3001) |
-| `NODE_ENV` | — | `production` em produção |
-| `DATABASE_URL` | Sim* | Conexão PostgreSQL |
-| `FRONTEND_URL` | Sim* | URL do frontend (CORS) |
-| `JWT_SECRET` | Sim* | Chave secreta para tokens JWT |
-
-\* Obrigatórias quando `NODE_ENV=production`
-
-### Frontend
-
-| Variável | Descrição |
-|----------|-----------|
-| `API_URL` | URL pública da API (ex: `https://backend.exemplo.com/api`) |
-
-### PostgreSQL
-
-| Variável | Descrição |
-|----------|-----------|
-| `POSTGRES_USER` | Usuário do banco |
-| `POSTGRES_PASSWORD` | Senha do banco |
-| `POSTGRES_DB` | Nome do banco (ex: `frosthub_db`) |
-
-## Segurança
-
-- Nunca versione arquivos `.env`
-- Credenciais ficam apenas no backend e no PostgreSQL
-- CORS restrito à URL configurada em `FRONTEND_URL`
-- Banco acessível apenas pelo backend na rede interna
-
-## Credenciais de teste
-
-Após executar `database/seed.sql`:
-
-- E-mail: `admin@frostyhub.com`
-- Senha: `admin123`
-
-## Status
-
-- [x] PRD-001 — Arquitetura e configuração inicial
-- [x] PRD-002 — Modelagem do banco de dados
-- [x] PRD-003 — API REST e autenticação
-- [x] PRD-004 — Interface, layout e experiência do usuário
-- [x] PRD-005 — Integração frontend ↔ backend e CRUD
-- [x] PRD-006 — Integração ViaCEP e automação de endereço
-- [x] PRD-007 — Polimento da aplicação (UX e robustez)
-- [x] PRD-008 — Dockerização final e padronização de deploy (EasyPanel)
+https://github.com/V1ctorgomes/frostyhub

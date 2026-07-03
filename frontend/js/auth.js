@@ -1,18 +1,12 @@
-const STORAGE_KEYS = {
-  token: "token",
-  userName: "userName",
-  userEmail: "userEmail",
-};
-
 let isLoggingIn = false;
 
 function isAuthenticated() {
-  return !!localStorage.getItem(STORAGE_KEYS.token);
+  return !!localStorage.getItem("token");
 }
 
 function getUser() {
-  const name = localStorage.getItem(STORAGE_KEYS.userName);
-  const email = localStorage.getItem(STORAGE_KEYS.userEmail);
+  const name = localStorage.getItem("userName");
+  const email = localStorage.getItem("userEmail");
 
   if (!name && !email) return null;
 
@@ -20,15 +14,15 @@ function getUser() {
 }
 
 function saveSession(token, user) {
-  localStorage.setItem(STORAGE_KEYS.token, token);
-  localStorage.setItem(STORAGE_KEYS.userName, user.name);
-  localStorage.setItem(STORAGE_KEYS.userEmail, user.email);
+  localStorage.setItem("token", token);
+  localStorage.setItem("userName", user.name);
+  localStorage.setItem("userEmail", user.email);
 }
 
 function clearSession() {
-  localStorage.removeItem(STORAGE_KEYS.token);
-  localStorage.removeItem(STORAGE_KEYS.userName);
-  localStorage.removeItem(STORAGE_KEYS.userEmail);
+  localStorage.removeItem("token");
+  localStorage.removeItem("userName");
+  localStorage.removeItem("userEmail");
 }
 
 function logout() {
@@ -53,14 +47,6 @@ function requireAuth() {
 function redirectIfAuthenticated() {
   if (isAuthenticated()) {
     window.location.replace("dashboard.html");
-  }
-}
-
-function updateLoginFormState() {
-  const loginBtn = document.getElementById("login-btn");
-
-  if (loginBtn) {
-    loginBtn.disabled = isLoggingIn;
   }
 }
 
@@ -103,7 +89,6 @@ function initLogin() {
 
     try {
       const result = await api.login(email, password);
-
       saveSession(result.token, result.user);
       showToast("Login realizado com sucesso.");
       window.location.replace("dashboard.html");
@@ -118,16 +103,11 @@ function initLogin() {
       isLoggingIn = false;
       hideLoading();
       setButtonLoading(loginBtn, false);
-      updateLoginFormState();
     }
   });
-
-  updateLoginFormState();
 }
 
 function initDashboardAuth() {
-  if (!requireAuth()) return;
-
   const user = getUser();
   const userNameEl = document.getElementById("user-name");
 

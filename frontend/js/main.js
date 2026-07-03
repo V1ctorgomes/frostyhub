@@ -9,18 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!requireAuth()) return;
 
     initDashboardAuth();
-
-    try {
-      initCustomers();
-    } catch (error) {
-      console.error("Erro ao iniciar clientes:", error);
-      showToast("Erro ao carregar a página de clientes.", "error");
-    }
-
-    try {
-      initCepField();
-    } catch {
-      showToast("Erro ao iniciar busca de CEP.", "warning");
-    }
+    initCustomers();
+    initCepField();
   }
 });

@@ -1,7 +1,3 @@
--- Usuário padrão para testes (PRD-003)
--- Email: admin@frostyhub.com
--- Senha: admin123
-
 INSERT INTO users (name, email, password)
 VALUES (
   'Administrador',
