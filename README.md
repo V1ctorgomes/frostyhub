@@ -187,7 +187,29 @@ Importante: no deploy, o backend não pode usar localhost pra falar com o banco.
 
 ## Prints
 
-Ainda vou colocar as imagens na pasta docs/screenshots/. Por enquanto dá pra testar direto no link do frontend.
+Tela de login:
+
+![Login](docs/screenshots/login.png)
+
+Lista de clientes (dashboard):
+
+![Lista de clientes](docs/screenshots/lista.png)
+
+Cadastro de cliente (com busca de CEP):
+
+![Cadastrar cliente](docs/screenshots/cadastrar.png)
+
+Detalhes do cliente:
+
+![Detalhes do cliente](docs/screenshots/detalhes.png)
+
+Editar cliente:
+
+![Editar cliente](docs/screenshots/editar.png)
+
+Confirmação de exclusão:
+
+![Excluir cliente](docs/screenshots/excluir.png)
 
 ## Repositório
 
