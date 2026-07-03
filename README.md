@@ -6,7 +6,7 @@ Projeto feito para o teste técnico da Frosty. É um sistema simples de cadastro
 
 A ideia é ter uma tela de login e, depois de entrar, um dashboard onde dá pra listar, cadastrar, editar e excluir clientes. Quando você digita o CEP, o endereço é buscado na API do ViaCEP.
 
-Fui montando o projeto aos poucos, seguindo os PRDs que a Frosty passou.
+Fui montando o projeto aos poucos, seguindo meu roadmap proprio.
 
 ## Tecnologias
 
