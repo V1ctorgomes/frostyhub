@@ -3,10 +3,13 @@ let editingId = null;
 let isLoadingCustomers = false;
 let isSubmitting = false;
 
+const ACTION_COLOR = "#0038a8";
+const DELETE_COLOR = "#dc2626";
+
 const ACTION_ICONS = {
-  view: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
-  edit: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
-  delete: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
+  view: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="${ACTION_COLOR}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle fill="none" stroke="${ACTION_COLOR}" stroke-width="2.5" cx="12" cy="12" r="3"/></svg>`,
+  edit: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="${ACTION_COLOR}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path fill="none" stroke="${ACTION_COLOR}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  delete: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="${DELETE_COLOR}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/><path fill="none" stroke="${DELETE_COLOR}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line stroke="${DELETE_COLOR}" stroke-width="2.5" stroke-linecap="round" x1="10" y1="11" x2="10" y2="17"/><line stroke="${DELETE_COLOR}" stroke-width="2.5" stroke-linecap="round" x1="14" y1="11" x2="14" y2="17"/></svg>`,
 };
 
 const VIEW_FIELDS = [
@@ -194,13 +197,13 @@ function renderTable() {
       <td>${escapeHtml(customer.state)}</td>
       <td>
         <div class="data-table__actions">
-          <button type="button" class="btn btn--ghost btn--action-icon" data-action="view" data-id="${customer.id}" aria-label="Ver ${escapeHtml(customer.name)}" title="Ver cliente">
+          <button type="button" class="btn btn--action-icon" data-action="view" data-id="${customer.id}" aria-label="Ver ${escapeHtml(customer.name)}" title="Ver cliente">
             ${ACTION_ICONS.view}
           </button>
-          <button type="button" class="btn btn--ghost btn--action-icon" data-action="edit" data-id="${customer.id}" aria-label="Editar ${escapeHtml(customer.name)}" title="Editar">
+          <button type="button" class="btn btn--action-icon" data-action="edit" data-id="${customer.id}" aria-label="Editar ${escapeHtml(customer.name)}" title="Editar">
             ${ACTION_ICONS.edit}
           </button>
-          <button type="button" class="btn btn--ghost btn--action-icon btn--action-icon--danger" data-action="delete" data-id="${customer.id}" aria-label="Excluir ${escapeHtml(customer.name)}" title="Excluir">
+          <button type="button" class="btn btn--action-icon btn--action-icon--danger" data-action="delete" data-id="${customer.id}" aria-label="Excluir ${escapeHtml(customer.name)}" title="Excluir">
             ${ACTION_ICONS.delete}
           </button>
         </div>

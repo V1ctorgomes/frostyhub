@@ -391,34 +391,30 @@
 
 .btn--action-icon {
   padding: 0.5rem;
-  color: var(--color-secondary);
   border-radius: var(--radius-sm);
   line-height: 0;
   flex-shrink: 0;
+  background: var(--color-secondary-light);
+  border: 1px solid var(--color-border);
   -webkit-tap-highlight-color: transparent;
 }
 
 .btn--action-icon:hover:not(:disabled) {
-  background: var(--color-secondary-light);
+  background: var(--color-border);
 }
 
 .btn--action-icon svg {
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  min-height: 18px;
-  max-width: none;
-  display: block;
-  stroke: currentColor;
-  fill: none;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .btn--action-icon--danger {
-  color: var(--color-error);
-}
-
-.btn--action-icon--danger:hover:not(:disabled) {
   background: var(--color-error-light);
+  border-color: #fecaca;
 }
 
 .customer-details {
@@ -521,9 +517,9 @@
   }
 
   .btn--action-icon svg {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-    min-height: 20px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
   }
 }
