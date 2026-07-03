@@ -379,6 +379,14 @@
   display: flex;
   gap: var(--spacing-xs);
   align-items: center;
+  flex-shrink: 0;
+  min-width: 7.5rem;
+}
+
+.data-table td:last-child,
+.data-table th:last-child {
+  min-width: 7.5rem;
+  white-space: nowrap;
 }
 
 .btn--action-icon {
@@ -386,6 +394,8 @@
   color: var(--color-secondary);
   border-radius: var(--radius-sm);
   line-height: 0;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn--action-icon:hover:not(:disabled) {
@@ -395,7 +405,12 @@
 .btn--action-icon svg {
   width: 18px;
   height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  max-width: none;
   display: block;
+  stroke: currentColor;
+  fill: none;
 }
 
 .btn--action-icon--danger {
@@ -487,5 +502,28 @@
     left: var(--spacing-md);
     right: var(--spacing-md);
     max-width: none;
+  }
+
+  .data-table__actions {
+    min-width: 8.5rem;
+    gap: var(--spacing-sm);
+  }
+
+  .data-table td:last-child,
+  .data-table th:last-child {
+    min-width: 8.5rem;
+  }
+
+  .btn--action-icon {
+    padding: 0.625rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .btn--action-icon svg {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
   }
 }
