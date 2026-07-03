@@ -511,15 +511,15 @@
   }
 
   .btn--action-icon {
-    padding: 0.625rem;
-    min-width: 2.75rem;
-    min-height: 2.75rem;
+    padding: 0.4rem;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
   }
 
   .btn--action-icon svg {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
-    min-height: 22px;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
   }
 }
