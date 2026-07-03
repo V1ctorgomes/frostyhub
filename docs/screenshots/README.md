@@ -1,8 +1,6 @@
 # Prints do sistema
 
-Vou deixar aqui as capturas de tela do projeto.
-
-Por enquanto dá pra ver tudo online:
+aqui você encontra uma versão funcional do projeto rodando na minha VPS pessoal!
 
 https://frostyhub-frontend.pknzmz.easypanel.host/
 
