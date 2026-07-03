@@ -14,7 +14,7 @@ No postgres você precisa configurar:
 ```
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=sua_senha
-POSTGRES_DB=frosthub_db
+POSTGRES_DB=frostyhub_db
 ```
 
 O nome do banco tem que bater com o que você colocar na DATABASE_URL do backend.
@@ -27,7 +27,7 @@ docker run -d \
   --network frostyhub-net \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=frosthub_db \
+  -e POSTGRES_DB=frostyhub_db \
   -p 5432:5432 \
   -v frostyhub_pgdata:/var/lib/postgresql/data \
   -v "$(pwd)/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro" \
@@ -39,7 +39,7 @@ Na primeira vez que o container sobe, o init.sql roda sozinho.
 Depois roda o seed:
 
 ```bash
-docker exec -i frostyhub-db psql -U postgres -d frosthub_db < seed.sql
+docker exec -i frostyhub-db psql -U postgres -d frostyhub_db < seed.sql
 ```
 
 ## No EasyPanel
@@ -53,7 +53,7 @@ docker exec -i frostyhub-db psql -U postgres -d frosthub_db < seed.sql
 Exemplo:
 
 ```
-DATABASE_URL=postgresql://postgres:SENHA@nome-do-postgres:5432/frosthub_db?sslmode=disable
+DATABASE_URL=postgresql://postgres:SENHA@nome-do-postgres:5432/frostyhub_db?sslmode=disable
 ```
 
 ## Usuário de teste

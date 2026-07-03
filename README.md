@@ -1,4 +1,4 @@
-# FrostHub
+# FrostyHub
 
 Projeto feito para o teste técnico da Frosty. É um sistema simples de cadastro de clientes com login.
 
@@ -55,7 +55,7 @@ docker run -d \
   --network frostyhub-net \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=frosthub_db \
+  -e POSTGRES_DB=frostyhub_db \
   -p 5432:5432 \
   -v frostyhub_pgdata:/var/lib/postgresql/data \
   -v "$(pwd)/database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro" \
@@ -65,7 +65,7 @@ docker run -d \
 Roda o seed pra criar o usuário de teste:
 
 ```bash
-docker exec -i frostyhub-db psql -U postgres -d frosthub_db < database/seed.sql
+docker exec -i frostyhub-db psql -U postgres -d frostyhub_db < database/seed.sql
 ```
 
 Sobe o backend:
@@ -79,7 +79,7 @@ docker run -d \
   -p 3001:3001 \
   -e PORT=3001 \
   -e NODE_ENV=production \
-  -e DATABASE_URL=postgresql://postgres:postgres@frostyhub-db:5432/frosthub_db \
+  -e DATABASE_URL=postgresql://postgres:postgres@frostyhub-db:5432/frostyhub_db \
   -e FRONTEND_URL=http://localhost:3000 \
   -e JWT_SECRET=chave_local_desenvolvimento \
   frostyhub-backend
@@ -164,7 +164,7 @@ Backend (.env):
 ```
 PORT=3001
 NODE_ENV=production
-DATABASE_URL=postgresql://usuario:senha@host-do-banco:5432/frosthub_db
+DATABASE_URL=postgresql://usuario:senha@host-do-banco:5432/frostyhub_db
 FRONTEND_URL=https://url-do-frontend
 JWT_SECRET=uma_chave_secreta
 ```
@@ -180,7 +180,7 @@ Postgres:
 ```
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=sua_senha
-POSTGRES_DB=frosthub_db
+POSTGRES_DB=frostyhub_db
 ```
 
 Importante: no deploy, o backend não pode usar localhost pra falar com o banco. Tem que ser o hostname interno que o EasyPanel mostra.
